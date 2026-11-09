@@ -87,6 +87,7 @@ input:focus,button:focus-visible{outline:3px solid var(--cy);outline-offset:1px}
 .row.ed{cursor:pointer;background:rgba(53,221,230,.08);border-radius:12px;padding-left:8px;padding-right:8px}
 .chart svg{width:100%;height:auto;display:block;margin-top:12px;border-radius:12px}#rt button{padding:10px;font-size:15px}
 #ri b{color:var(--ink)}
+.fb{cursor:pointer}.fb.pend{border-left:3px solid var(--cy);padding-left:8px}.fb.pend small{color:var(--cy)}#ipv b{color:var(--ink)}
 .toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--cy);color:#06182A;font-weight:600;padding:10px 18px;border-radius:999px;z-index:50;max-width:90%;text-align:center}
 .lock{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(120% 90% at 0% 0%,#06406b 0%,#07152b 42%,#050a18 100%);padding:calc(24px + env(safe-area-inset-top,0px)) 24px calc(24px + env(safe-area-inset-bottom,0px))}
 .lk{width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px}
@@ -108,6 +109,7 @@ input:focus,button:focus-visible{outline:3px solid var(--cy);outline-offset:1px}
 <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2.5h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
 <linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD84D"/><stop offset="1" stop-color="#F08A1C"/></linearGradient>
 <symbol id="i-logo" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#0D1628" stroke="url(#gg)" stroke-width="3"/><g fill="#FFC21A"><rect x="16" y="39" width="34" height="9" rx="4.5"/><rect x="22" y="30" width="22" height="9" rx="1.5"/><rect x="29" y="21" width="11" height="10" rx="1.5"/><rect x="41" y="17" width="2" height="7"/><path d="M8 31h6v16H7z"/><path d="M50 37h5v8l-3 3-2-2z"/></g><path d="M14 41 25 36" stroke="#FFC21A" stroke-width="2.4" stroke-linecap="round"/><g fill="#0D1628"><rect x="31" y="23" width="6" height="5" rx="1"/><circle cx="23" cy="43.5" r="2.4"/><circle cx="33" cy="43.5" r="2.4"/><circle cx="43" cy="43.5" r="2.4"/></g><g fill="#35DDE6"><circle cx="27" cy="54" r="1.7"/><circle cx="32" cy="54" r="1.7"/><circle cx="37" cy="54" r="1.7"/></g></symbol>
+<symbol id="i-faro" viewBox="0 0 24 24"><path d="M9 21h6M10 21l1-12h2l1 12M10 9h4l-1-4h-2zM3.5 7l4 1M20.5 7l-4 1M12 2.5V4"/></symbol>
 <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.7.6 1 1.3 1 2.1h5c0-.8.3-1.5 1-2.1A6 6 0 0 0 12 3z"/></symbol>
 <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="3"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
 </defs></svg>
@@ -144,6 +146,7 @@ input:focus,button:focus-visible{outline:3px solid var(--cy);outline-offset:1px}
     <label>Hasta<input type="date" id="t"></label>
   </div>
   <div class="exp"><button id="bxls">Exportar Excel</button><button id="bpdf">Exportar PDF</button></div>
+  <section class="card hist" style="margin-bottom:12px"><div class="hh"><button class="hbtn" id="bf" aria-expanded="false"><svg class="ic" style="color:var(--cy)"><use href="#i-faro"/></svg>Faro <span id="fn" style="color:var(--mute);font-weight:400;font-size:14px"></span><svg class="ic chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><button class="mini" id="bimp">Importar</button></div><div class="list hide" id="flist"></div></section>
   <section class="card hist"><div class="hh"><button class="hbtn" id="bh" aria-expanded="false">Historial <span id="hn" style="color:var(--mute);font-weight:400"></span><svg class="ic chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><button class="mini" id="bfix">Corregir</button></div><div class="list hide" id="list"></div></section>
   <div class="acts">
     <button class="bi" id="bin"><svg class="ic"><use href="#i-up"/></svg>Ingresos</button>
@@ -177,7 +180,7 @@ var S;
 try{S=JSON.parse(localStorage.getItem("hapi")||"null")}catch(e){S=null}
 if(!S)S={custom:[],ops:[],from:"2026-10-30",to:today()};
 if(S.v!==2){S.pin="102019";S.v=2}
-S.tc=S.tc||3.452;S.custom=S.custom||[];
+S.tc=S.tc||3.452;S.custom=S.custom||[];S.bank=S.bank||[];
 S.ops.forEach(function(o){if(o.p===undefined){o.p=o.a;o.cur="PEN"}});
 function save(){try{localStorage.setItem("hapi",JSON.stringify(S));return true}catch(e){return false}}
 function all(){return BASE.concat(S.custom)}
@@ -206,7 +209,7 @@ function render(){
   $("#arc").setAttribute("stroke-dasharray",(pi*2.5133).toFixed(2)+" 251.33");
   $("#ti").textContent=money(ti);$("#to").textContent=money(to);$("#ps").textContent=money(ti-tg);
   $("#pi").textContent=Math.round(pi)+"%";$("#po").textContent=(tot?Math.round(100-pi):0)+"%";
-  var n=sel.length;$("#hn").textContent="("+n+")";
+  var n=sel.length;$("#hn").textContent="("+n+")";renderFaro();
   $("#cnt").innerHTML="<b>"+n+" operacion"+(n===1?"":"es")+"</b> · <span class='in'>"+ni+" ingreso"+(ni===1?"":"s")+"</span> · <span class='out'>"+no+" egreso"+(no===1?"":"s")+"</span>";
   var h="";
   sel.slice().reverse().forEach(function(o){
@@ -296,7 +299,7 @@ $("#sheet").addEventListener("click",function(e){
     var id=S.ops.reduce(function(m,o){return Math.max(m,o.id)},0)+1,p=r2(a*tc);
     var o={id:id,d:d,c:sh.c,t:sh.t,cur:sh.cur,a:r2(a),tc:tc,p:p,x:$("#dx").value.trim()};
     if(sh.img)o.img=sh.img;
-    if(sh.edit){var ex=S.ops.filter(function(x){return x.id===sh.edit})[0];o.id=ex.id;S.ops[S.ops.indexOf(ex)]=o}else S.ops.push(o);if(u)S.tc=tc;
+    if(sh.edit){var ex=S.ops.filter(function(x){return x.id===sh.edit})[0];o.id=ex.id;S.ops[S.ops.indexOf(ex)]=o}else S.ops.push(o);if(sh.bank){var bk=(S.bank||[]).filter(function(x){return x.id===sh.bank})[0];if(bk)bk.link=o.id}if(u)S.tc=tc;
     if(d>S.to)S.to=d;if(d<S.from)S.from=d;
     var ok=save();closeSheet();render();
     toast(ok?(sh.edit?"Corregido: ":sh.t==="in"?"Ingreso anotado: ":"Egreso anotado: ")+money(p)+(u?" ("+usd(a)+")":""):"No se pudo guardar. Prueba sin la foto.");
@@ -342,10 +345,10 @@ var NAME="Servicios Generales Chumita EIRL";
 function fdate(d){return d.slice(8)+"/"+d.slice(5,7)+"/"+d.slice(0,4)}
 function pn(n){return (n<0?"-":"")+fmt(n)}
 function tot(sel){var t={i:0,e:0,g:0};sel.forEach(function(o){if(o.t==="in")t.i+=o.p;else{t.e+=o.p;if(o.c==="Gasto")t.g+=o.p}});t.i=r2(t.i);t.e=r2(t.e);t.g=r2(t.g);return t}
-function desc(o){return o.c.toUpperCase()+(o.x?" --- "+o.x:" ---")}
+function desc(o){return o.c.toUpperCase()+(o.x?" - "+o.x:"")+(o.cur==="USD"?" ($ "+fmt(o.a)+" a "+o.tc+")":"")}
 async function dl(name,data){
   var d=(window.claude&&claude.use)?await claude.use("downloads"):null;
-  if(!d){toast("Aquí no se puede descargar. Abre la página en tu navegador.");return}
+  if(!d){var bu=URL.createObjectURL(new Blob([data])),ba=document.createElement("a");ba.href=bu;ba.download=name;document.body.appendChild(ba);ba.click();ba.remove();setTimeout(function(){URL.revokeObjectURL(bu)},4000);return}
   try{await d.save({filename:name,data:data})}catch(e){if(!e||e.code!=="declined")toast("No se pudo descargar el archivo")}
 }
 $("#bxls").onclick=async function(){
@@ -483,7 +486,7 @@ $('#sheet').addEventListener('click',function(e){
 /* Herramientas, PDF renovado y velas interactivas */
 var PL="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",CS={lo:0,hi:1,slot:1};
 function need(u){return new Promise(function(res){
-  var k=u.indexOf("xlsx")>0?"XLSX":"jspdf";if(window[k])return res(true);
+  var k=u.indexOf("exceljs")>0?"ExcelJS":u.indexOf("xlsx")>0?"XLSX":"jspdf";if(window[k])return res(true);
   toast("Preparando…");var s=document.createElement("script");s.src=u;
   s.onload=function(){res(true)};s.onerror=function(){toast("No se pudo cargar la herramienta. Revisa tu internet.");res(false)};
   document.head.appendChild(s);
@@ -563,6 +566,181 @@ function bindCandles(a){
   svg.addEventListener("pointermove",mv);svg.addEventListener("pointerdown",mv);
   svg.addEventListener("pointerleave",function(e){if(e.pointerType==="mouse")$("#xh").setAttribute("visibility","hidden")});
 }
+
+/* Faro del banco, Excel y PDF renovados */
+var XJ='https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js',XL0='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',imp={rows:[],cur:'PEN'};
+function fl(a){return{type:'pattern',pattern:'solid',fgColor:{argb:a}}}
+function nrm(c){return String(c).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim()}
+function pIso(v){
+  if(v instanceof Date&&!isNaN(v))return new Date(v.getTime()+432e5).toISOString().slice(0,10);
+  if(typeof v==='number'&&v>30000&&v<80000)return new Date(Math.round((v-25569)*864e5)+432e5).toISOString().slice(0,10);
+  var s=String(v).trim(),m=s.match(/(\d{4})-(\d{2})-(\d{2})/);if(m)return m[1]+'-'+m[2]+'-'+m[3];
+  m=s.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);if(!m)return null;
+  var y=+m[3];if(y<100)y+=2000;return y+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');
+}
+function pNum(v){
+  if(typeof v==='number')return v;
+  var s=String(v).trim();if(!s)return 0;
+  var neg=/^\(.*\)$/.test(s)||/^-/.test(s)||/-\s*$/.test(s);
+  s=s.replace(/[^\d.,]/g,'');if(!s)return 0;
+  var lc=s.lastIndexOf(','),ld=s.lastIndexOf('.');
+  if(lc>=0&&ld>=0){s=lc>ld?s.replace(/\./g,'').replace(',','.'):s.replace(/,/g,'')}
+  else if(lc>=0){s=/,\d{1,2}$/.test(s)?s.replace(',','.'):s.replace(/,/g,'')}
+  var n=parseFloat(s);return isNaN(n)?0:(neg?-n:n);
+}
+function parseBank(rows){
+  var hi=-1,H=null,r,j;
+  for(r=0;r<Math.min(rows.length,25)&&hi<0;r++){
+    var cs=rows[r].map(nrm),f=cs.findIndex(function(c){return /^fecha/.test(c)});if(f<0)continue;
+    var d=-1,K=['descripcion','detalle','concepto','glosa','movimiento','operacion','referencia'];
+    for(j=0;j<K.length&&d<0;j++)d=cs.findIndex(function(c,i){return i!==f&&c.indexOf(K[j])>=0});
+    var ab=cs.findIndex(function(c){return /abono|deposito|credito|haber|ingreso/.test(c)}),ca=cs.findIndex(function(c){return /cargo|retiro|debito|debe|egreso/.test(c)}),mo=cs.findIndex(function(c){return /^(monto|importe)/.test(c)});
+    if(d>=0&&((ab>=0&&ca>=0)||mo>=0)){hi=r;H={f:f,d:d,ab:ab,ca:ca,mo:mo}}
+  }
+  if(!H)return null;
+  var out=[];
+  for(r=hi+1;r<rows.length;r++){
+    var row=rows[r],dt=pIso(row[H.f]);if(!dt)continue;
+    var a=0,t='in';
+    if(H.ab>=0&&H.ca>=0){var va=pNum(row[H.ab]),vc=pNum(row[H.ca]);if(va>0){a=va}else if(vc!==0){a=Math.abs(vc);t='out'}else continue}
+    else{var vm=pNum(row[H.mo]);if(!vm)continue;a=Math.abs(vm);t=vm<0?'out':'in'}
+    out.push({d:dt,desc:String(row[H.d]).trim(),a:r2(a),t:t});
+  }
+  return out;
+}
+function renderFaro(){
+  var B=(S.bank||[]).filter(function(b){return b.d>=S.from&&b.d<=S.to}).sort(function(a,b){return a.d<b.d?1:a.d>b.d?-1:b.id-a.id}),live={};
+  S.ops.forEach(function(o){live[o.id]=1});
+  var pend=B.filter(function(b){return !(b.link&&live[b.link])}).length,h='';
+  $('#fn').textContent=B.length?'('+B.length+(pend?' · '+pend+' por clasificar':'')+')':'';
+  B.forEach(function(b){
+    var done=b.link&&live[b.link];
+    h+='<div class="row fb'+(done?'':' pend')+'" data-bk="'+b.id+'"><div class="d">'+b.d.slice(8)+'/'+b.d.slice(5,7)+'</div><div class="m"><b>'+esc(b.desc||'Movimiento')+'</b></div><div class="a '+(b.t==='in'?'in':'out')+'">'+(b.t==='in'?'+':'−')+(b.cur==='USD'?usd(b.a):money(b.a))+'<small>'+(done?'✓ Clasificado':'Por clasificar')+'</small></div></div>';
+  });
+  $('#flist').innerHTML=h||'<div class="empty">Aún no hay movimientos del banco en estas fechas.<br>Toca Importar para subir tu estado de cuenta.</div>';
+}
+function openImport(){
+  imp={rows:[],cur:'PEN'};
+  $('#sheet').innerHTML='<h2>Importar del banco</h2><div class="tip" style="margin:0">💡 Descarga el estado de cuenta desde la banca por internet de tu banco (Excel o CSV) y súbelo aquí. Todo queda en el Faro, sin clasificar. Después tú eliges si cada uno fue compra, venta, anticipo, etc.</div><span class="lb">Moneda de la cuenta</span><div class="seg" id="ic"><button data-bcur="PEN" class="on">S/ Soles</button><button data-bcur="USD">$ Dólares</button></div><label class="photo" style="margin-top:14px"><svg class="ic"><use href="#i-up"/></svg><span id="ift">Elegir archivo (Excel o CSV)</span><input id="ifl" type="file" accept=".xlsx,.xls,.csv,text/csv" class="hide"></label><div id="ipv" class="sub"></div><div id="se" class="err"></div><button class="save hide" id="iok" style="background:var(--cy)">Importar al Faro</button><button class="save" id="cl" style="background:var(--fld);color:var(--ink);margin-top:10px">Cerrar</button><div style="text-align:center"><button class="link" id="fclr">Vaciar el Faro</button></div>';
+  $('#shade').classList.remove('hide');
+}
+async function readBank(file){
+  $('#se').textContent='';$('#ipv').textContent='Leyendo…';
+  if(!(await need(XL0))){$('#ipv').textContent='';return}
+  try{
+    var wb=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:true}),ws=wb.Sheets[wb.SheetNames[0]];
+    var res=parseBank(XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:''}));
+    if(!res||!res.length){$('#ipv').textContent='';$('#se').textContent='No pude reconocer las columnas de este archivo. Envíame un ejemplo (con los números de cuenta tapados) y lo ajusto.';return}
+    var have={},seen={};S.bank.forEach(function(b){have[b.k]=1});
+    imp.rows=res.map(function(r){var k=r.d+'|'+r.desc+'|'+r.a+'|'+r.t;seen[k]=(seen[k]||0)+1;r.k=k+'#'+seen[k];return r}).filter(function(r){return !have[r.k]});
+    var ni=imp.rows.filter(function(r){return r.t==='in'}).length;
+    $('#ipv').innerHTML='Encontré <b>'+res.length+'</b> movimientos. Nuevos: <b>'+imp.rows.length+'</b> ('+ni+' abonos y '+(imp.rows.length-ni)+' cargos).';
+    $('#iok').classList.toggle('hide',!imp.rows.length);$('#ift').textContent=file.name;
+  }catch(e){$('#ipv').textContent='';$('#se').textContent='No se pudo leer el archivo.'}
+}
+function openFromBank(id){
+  var b=S.bank.filter(function(x){return x.id==id})[0];if(!b)return;
+  sh={t:b.t,c:/\bitf\b/i.test(b.desc)?'Gasto':all().filter(function(c){return c.t===b.t})[0].n,cur:b.cur||'PEN',img:'',add:false,bank:b.id};
+  drawSheet();
+  $('#am').value=b.a;$('#dx').value=b.desc.slice(0,40);$('#dt').value=b.d;
+  if(sh.cur==='USD'){document.querySelectorAll('.seg button').forEach(function(x){x.classList.toggle('on',x.dataset.cur==='USD')});$('#tcw').classList.remove('hide');$('#ml').textContent='Monto en dólares'}
+  eq();
+  $('#stt').insertAdjacentHTML('afterend','<div class="tip" style="margin:0 0 10px">🏦 Del banco: '+esc(b.desc)+'. Elige qué fue.</div>');
+  $('#shade').classList.remove('hide');
+}
+$('#bf').onclick=function(){var o=$('#bf').getAttribute('aria-expanded')==='true';$('#bf').setAttribute('aria-expanded',o?'false':'true');$('#flist').classList.toggle('hide',o)};
+$('#bimp').onclick=openImport;
+document.addEventListener('click',function(e){
+  var r=e.target.closest('[data-bk]');if(!r)return;
+  var b=S.bank.filter(function(x){return x.id==r.dataset.bk})[0];if(!b)return;
+  if(S.ops.some(function(o){return o.id===b.link}))openEdit(b.link);else openFromBank(b.id);
+});
+$('#sheet').addEventListener('change',function(e){if(e.target.id==='ifl'&&e.target.files[0])readBank(e.target.files[0])});
+$('#sheet').addEventListener('click',function(e){
+  var el=e.target.closest('button');if(!el)return;
+  if(el.dataset.bcur){imp.cur=el.dataset.bcur;document.querySelectorAll('#ic button').forEach(function(b){b.classList.toggle('on',b===el)})}
+  else if(el.id==='iok'){
+    var id=S.bank.reduce(function(m,b){return Math.max(m,b.id)},0),mn=S.from,mx=S.to,n=imp.rows.length;
+    imp.rows.forEach(function(r){id++;S.bank.push({id:id,d:r.d,desc:r.desc,a:r.a,t:r.t,cur:imp.cur,k:r.k,link:null});if(r.d<mn)mn=r.d;if(r.d>mx)mx=r.d});
+    S.from=mn;S.to=mx;save();closeSheet();render();
+    $('#bf').setAttribute('aria-expanded','true');$('#flist').classList.remove('hide');toast(n+' movimientos en el Faro');
+  }else if(el.id==='fclr'){
+    if(!sh.confirmClr){sh.confirmClr=1;el.textContent='Toca otra vez para vaciar';return}
+    S.bank=[];save();closeSheet();render();toast('Faro vacío');
+  }
+});
+$('#bxls').onclick=async function(){
+  if(!(await need(XJ)))return;
+  try{
+    var sel=period(),t=tot(sel),wb=new ExcelJS.Workbook(),NAVY='FF0D1628',CY='FF35DDE6',LB='FF8FE9F5',GR='FF41D885',SKY='FFDCE9F7',SAL='FFFADBD0',GRY='FFE3E7ED',FM='"S/ "#,##0.00;-"S/ "#,##0.00',dash={style:'dashed',color:{argb:CY}};
+    var ws=wb.addWorksheet('Flujo de efectivo',{views:[{state:'frozen',ySplit:3,showGridLines:false}]});
+    ws.columns=[{width:13},{width:46},{width:16},{width:16},{width:16},{width:18}];
+    ws.mergeCells('A1:F1');var c=ws.getCell('A1');c.value=NAME.toUpperCase();c.font={bold:true,size:16,color:{argb:'FFFFC21A'}};c.fill=fl(NAVY);c.alignment={horizontal:'center',vertical:'middle'};ws.getRow(1).height=30;
+    ws.mergeCells('A2:F2');c=ws.getCell('A2');c.value='Flujo de efectivo del '+fdate(S.from)+' al '+fdate(S.to);c.font={size:11,color:{argb:CY}};c.fill=fl(NAVY);c.alignment={horizontal:'center'};
+    var hr=ws.addRow(['FECHA','DESCRIPCIÓN','INGRESOS','EGRESOS','PATRIMONIO','P. SIN GASTOS']);hr.height=24;
+    hr.eachCell(function(c,i){c.fill=fl(NAVY);c.font={bold:true,size:12,color:{argb:i===6?GR:LB}};c.alignment={horizontal:'center',vertical:'middle'};c.border={bottom:{style:'thin',color:{argb:CY}}}});
+    sel.forEach(function(o){
+      var r=ws.addRow([fdate(o.d),desc(o),o.t==='in'?o.p:0,o.t==='out'?o.p:0,o.s,o.sg]);r.height=20;
+      r.eachCell(function(c,i){c.alignment={horizontal:'center',vertical:'middle'};if(i>=3)c.numFmt=FM;c.border={bottom:dash}});
+      if(o.t==='in')r.getCell(3).fill=fl(SKY);else r.getCell(4).fill=fl(SAL);
+    });
+    var tr=ws.addRow(['TOTAL','',t.i,t.e,r2(t.i-t.e),r2(t.i-t.g)]);tr.height=22;ws.mergeCells('A'+tr.number+':B'+tr.number);
+    tr.eachCell(function(c,i){c.font={bold:true,size:12};c.alignment={horizontal:'center',vertical:'middle'};if(i>=3)c.numFmt=FM;c.border={top:{style:'thin',color:{argb:CY}},bottom:dash}});
+    tr.getCell(6).fill=fl(GRY);
+    var fr=ws.addRow(['POR PATRIMONIO FINAL , DEL '+fdate(S.from)+' AL '+fdate(S.to),'','','','','SIN GASTOS']);fr.height=24;ws.mergeCells('A'+fr.number+':E'+fr.number);
+    fr.eachCell(function(c){c.font={bold:true,size:11};c.alignment={horizontal:'center',vertical:'middle'};c.border={top:dash,bottom:dash,left:dash,right:dash}});
+    var fb=S.bank.filter(function(b){return b.d>=S.from&&b.d<=S.to}).sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:a.id-b.id}),live={};
+    S.ops.forEach(function(o){live[o.id]=1});
+    if(fb.length){
+      var w2=wb.addWorksheet('Faro (banco)',{views:[{state:'frozen',ySplit:2,showGridLines:false}]});
+      w2.columns=[{width:13},{width:54},{width:16},{width:16},{width:18}];
+      w2.mergeCells('A1:E1');c=w2.getCell('A1');c.value='FARO · MOVIMIENTOS DEL BANCO';c.font={bold:true,size:14,color:{argb:CY}};c.fill=fl(NAVY);c.alignment={horizontal:'center',vertical:'middle'};w2.getRow(1).height=26;
+      var h2=w2.addRow(['FECHA','DESCRIPCIÓN DEL BANCO','ABONOS','CARGOS','ESTADO']);
+      h2.eachCell(function(c){c.fill=fl(NAVY);c.font={bold:true,color:{argb:LB}};c.alignment={horizontal:'center'}});
+      fb.forEach(function(b){
+        var r=w2.addRow([fdate(b.d),b.desc,b.t==='in'?b.a:0,b.t==='out'?b.a:0,(b.link&&live[b.link])?'Clasificado':'Por clasificar']);
+        r.eachCell(function(c,i){c.alignment={horizontal:i===2?'left':'center'};if(i===3||i===4)c.numFmt=b.cur==='USD'?'"$ "#,##0.00':FM;c.border={bottom:dash}});
+        if(b.t==='in')r.getCell(3).fill=fl(SKY);else r.getCell(4).fill=fl(SAL);
+      });
+    }
+    var buf=await wb.xlsx.writeBuffer();
+    dl('Flujo_Chumita_'+S.from+'_a_'+S.to+'.xlsx',new Uint8Array(buf));
+  }catch(e){toast('No se pudo preparar el Excel')}
+};
+$('#bpdf').onclick=async function(){
+  if(!(await need(PL)))return;
+  try{
+    var sel=period(),t=tot(sel),doc=new jspdf.jsPDF({unit:'mm',format:'a4'}),lg=await svgPng(logoSvg(),256,256),y=36,X={f:16,d:34,i:128,e:150,p:172,s:196};
+    band(doc,lg,'Flujo de efectivo del '+fdate(S.from)+' al '+fdate(S.to));
+    kpis(doc,t,y);y+=28;
+    var head=function(){
+      doc.setFillColor(13,22,40);doc.rect(14,y-5.5,184,8,'F');doc.setFont('helvetica','bold');doc.setFontSize(8.5);
+      doc.setTextColor(143,233,245);doc.text('FECHA',X.f,y);doc.text('DESCRIPCIÓN',X.d,y);doc.text('INGRESOS',X.i,y,{align:'right'});doc.text('EGRESOS',X.e,y,{align:'right'});doc.text('PATRIMONIO',X.p,y,{align:'right'});
+      doc.setTextColor(65,216,133);doc.text('P. SIN GASTOS',X.s,y,{align:'right'});
+      y+=7;doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+    };
+    head();
+    sel.forEach(function(o){
+      if(y>278){doc.addPage();y=18;head()}
+      if(o.t==='in'){doc.setFillColor(220,233,247);doc.rect(108,y-4.5,22,6.5,'F')}else{doc.setFillColor(250,219,208);doc.rect(130,y-4.5,22,6.5,'F')}
+      doc.setTextColor(20,30,45);doc.text(fdate(o.d),X.f,y);doc.text(desc(o).slice(0,46),X.d,y);
+      doc.text(fmt(o.t==='in'?o.p:0),X.i,y,{align:'right'});doc.text(fmt(o.t==='out'?o.p:0),X.e,y,{align:'right'});doc.text(pn(o.s),X.p,y,{align:'right'});doc.text(pn(o.sg),X.s,y,{align:'right'});
+      doc.setDrawColor(53,221,230);doc.setLineWidth(.2);doc.setLineDashPattern([1,1],0);doc.line(14,y+2,198,y+2);doc.setLineDashPattern([],0);
+      y+=6.5;
+    });
+    if(!sel.length){doc.setTextColor(90,105,125);doc.text('No hay operaciones en estas fechas.',X.f,y);y+=8}
+    if(y>258){doc.addPage();y=18}
+    doc.setFillColor(227,231,237);doc.rect(174,y-4.5,24,7,'F');
+    doc.setFont('helvetica','bold');doc.setTextColor(20,30,45);
+    doc.text('TOTAL',X.d,y);doc.text(fmt(t.i),X.i,y,{align:'right'});doc.text(fmt(t.e),X.e,y,{align:'right'});doc.text(pn(t.i-t.e),X.p,y,{align:'right'});doc.text(pn(t.i-t.g),X.s,y,{align:'right'});
+    y+=7;doc.setDrawColor(53,221,230);doc.setLineDashPattern([1.2,1.2],0);doc.rect(14,y,184,8);doc.line(174,y,174,y+8);doc.setLineDashPattern([],0);
+    doc.setFontSize(8.5);doc.text('POR PATRIMONIO FINAL , DEL '+fdate(S.from)+' AL '+fdate(S.to),94,y+5.3,{align:'center'});doc.text('SIN GASTOS',186,y+5.3,{align:'center'});
+    y+=15;doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(90,105,125);
+    doc.text('Patrimonio = dinero en cuenta (ingresos - egresos). P. sin gastos = lo que tienes después de descontar los gastos. Montos en soles (S/).',14,y);
+    var np=doc.getNumberOfPages();for(var p=1;p<=np;p++){doc.setPage(p);doc.setFontSize(8);doc.setTextColor(120,130,145);doc.text('Página '+p+' de '+np,196,291,{align:'right'})}
+    dl('Flujo_Chumita_'+S.from+'_a_'+S.to+'.pdf',doc.output('arraybuffer'));
+  }catch(e){toast('No se pudo preparar el PDF')}
+};
 
 /* Oro, plata y cobre que suben y se desvanecen */
 (function(){
