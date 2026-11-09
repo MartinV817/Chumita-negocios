@@ -90,6 +90,7 @@ input:focus,button:focus-visible{outline:3px solid var(--cy);outline-offset:1px}
 #ri b{color:var(--ink)}
 .fb{cursor:pointer}.fb.pend{border-left:3px solid var(--cy);padding-left:8px}.fb.pend small{color:var(--cy)}#ipv b{color:var(--ink)}
 body:not(.admin) .adm{display:none}body.lector .exp,body.lector .hist,body.lector .acts,body.lector #pres{display:none}
+.lk .keep{display:flex;align-items:center;gap:10px;text-align:left;color:#A9B8CC;font-size:14px;cursor:pointer}.lk .keep input{width:20px;height:20px;padding:0;border-radius:6px;accent-color:#35DDE6;flex:none}
 .toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--cy);color:#06182A;font-weight:600;padding:10px 18px;border-radius:999px;z-index:50;max-width:90%;text-align:center}
 .lock{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(120% 90% at 0% 0%,#06406b 0%,#07152b 42%,#050a18 100%);padding:calc(24px + env(safe-area-inset-top,0px)) 24px calc(24px + env(safe-area-inset-bottom,0px))}
 .lk{width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px}
@@ -119,7 +120,7 @@ body:not(.admin) .adm{display:none}body.lector .exp,body.lector .hist,body.lecto
 <div id="lock" class="lock hide"><div class="lk">
   <svg class="ic"><use href="#i-lock"/></svg>
   <h1>Ingresa a tu cuenta</h1>
-  <input id="mail" type="email" autocomplete="username" placeholder="Correo" aria-label="Correo"><input id="pin" type="password" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña">
+  <input id="mail" type="email" autocomplete="username" placeholder="Correo" aria-label="Correo"><input id="pin" type="password" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña"><label class="keep"><input type="checkbox" id="keep" checked> Mantener sesión iniciada en este dispositivo</label>
   <div id="le" class="err"></div>
   <button class="entrar" id="enter">Entrar</button>
 </div></div>
@@ -754,7 +755,7 @@ function rowOp(r){return{id:r.id,d:r.fecha,c:r.categoria,t:r.tipo,cur:r.moneda,a
 function rowBank(r){return{id:r.id,d:r.fecha,desc:r.descripcion||'',a:+r.monto,t:r.tipo,cur:r.moneda,k:r.clave,link:r.movimiento_id,_r:1}}
 async function fetchAll(t){var out=[],i=0;for(;;){var r=await sb.from(t).select('*').order('id').range(i,i+999);if(r.error)throw r.error;out=out.concat(r.data);if(r.data.length<1000)break;i+=1000}return out}
 async function loadAll(){
-  var u=await sb.auth.getUser();UID=u.data.user.id;
+  var u=await sb.auth.getUser();UID=u.data.user.id;MAIL=u.data.user.email||'';
   var pr=await sb.from('perfiles').select('rol,nombre').eq('id',UID).maybeSingle();
   ROL=pr.data?pr.data.rol:'lector';ME=(pr.data&&pr.data.nombre)||'';NEEDNAME=!ME||ME.indexOf('@')>=0;if(NEEDNAME)ME='';NAMES[UID]=ME;
   document.body.classList.toggle('lector',ROL==='lector');document.body.classList.toggle('admin',ROL==='admin');
@@ -852,14 +853,14 @@ function askName(){
     };
   });
 }
-async function enterApp(){
+async function enterApp(){touch();
   try{await loadAll()}catch(e){toast('No se pudo cargar. Revisa tu internet.');showLock();return}
   S.ops.map(function(o){return o.d}).concat(S.bank.map(function(b){return b.d})).forEach(function(d){if(d<S.from)S.from=d;if(d>S.to)S.to=d});
   $('#lock').classList.add('hide');$('#main').classList.remove('hide');render();
   if(NEEDNAME&&ROL){await askName();render()}
 }
 async function tryEnter(){
-  var r=await sb.auth.signInWithPassword({email:$('#mail').value.trim(),password:$('#pin').value});
+  KEEP=$('#keep').checked;var r=await sb.auth.signInWithPassword({email:$('#mail').value.trim(),password:$('#pin').value});
   $('#pin').value='';
   if(r.error){
     var em=(String(r.error.message||'')+' '+String(r.error.name||'')).toLowerCase();
@@ -868,18 +869,44 @@ async function tryEnter(){
   $('#le').textContent='';await enterApp();
 }
 async function logout(){await sb.auth.signOut();S.ops=[];S.bank=[];READY=false;showLock()}
+var IDLE=45*60*1000,LAST=Date.now(),LASTSAVE=0,MAIL='';
+function touch(){LAST=Date.now();if(LAST-LASTSAVE>20000){LASTSAVE=LAST;try{localStorage.setItem('hapi_last',String(LAST))}catch(e){}}}
+function idleFor(){var t=+localStorage.getItem('hapi_last')||0;return Date.now()-Math.max(LAST,t)}
+async function lockNow(msg,force){
+  if(!force&&$('#main').classList.contains('hide'))return;
+  $('#shade').classList.add('hide');delete $('#shade').dataset.lock;
+  if(READY&&ROL&&ROL!=='lector'&&!syncing){try{await sync()}catch(e){}}
+  try{await sb.auth.signOut({scope:'local'})}catch(e){}
+  S.ops=[];S.bank=[];READY=false;
+  try{localStorage.removeItem('hapi_last')}catch(e){}
+  showLock();$('#mail').value=MAIL||'';$('#le').textContent=msg||'Se cerró la sesión por inactividad (45 minutos). Ingresa tu contraseña.';
+  $('#pin').focus();
+}
+function idleStart(){
+  ['pointerdown','keydown','touchstart','wheel','scroll','mousemove'].forEach(function(ev){document.addEventListener(ev,touch,{passive:true,capture:true})});
+  setInterval(function(){if(idleFor()>IDLE)lockNow()},30000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&idleFor()>IDLE)lockNow()});
+}
+var KEEP=true,STO={
+  getItem:function(k){var v=sessionStorage.getItem(k);if(v!==null){KEEP=false;return v}return localStorage.getItem(k)},
+  setItem:function(k,v){if(KEEP){localStorage.setItem(k,v);sessionStorage.removeItem(k)}else{sessionStorage.setItem(k,v);localStorage.removeItem(k)}},
+  removeItem:function(k){localStorage.removeItem(k);sessionStorage.removeItem(k)}
+};
 function boot(){
   showLock();
   if(!window.supabase){$('#le').textContent='No se pudo cargar la conexión. Revisa tu internet.';return}
-  sb=supabase.createClient(SB_URL,SB_KEY);
+  sb=supabase.createClient(SB_URL,SB_KEY,{auth:{storage:STO,persistSession:true,autoRefreshToken:true}});
   $('#mail').addEventListener('keydown',function(e){if(e.key==='Enter')$('#pin').focus()});
-  window.addEventListener('online',syncQ);
+  window.addEventListener('online',syncQ);idleStart();
   setInterval(function(){
     if(!READY||syncing||again||document.hidden||!$('#shade').classList.contains('hide'))return;
     if(S.ops.some(function(o){return o.id<0})||S.bank.some(function(b){return b.id<0}))return;
     loadAll().then(render).catch(function(){});
   },60000);
-  sb.auth.getSession().then(function(r){if(r.data.session)enterApp()});
+  sb.auth.getSession().then(function(r){var s=r.data.session,lt=localStorage.getItem('hapi_last');
+    if(s&&lt!==null&&Date.now()-(+lt)>IDLE){MAIL=s.user.email||'';lockNow('Pasaron más de 45 minutos sin usar la app. Ingresa tu contraseña.',true)}
+    else if(s)enterApp();
+  });
 }
 
 /* Oro, plata y cobre que suben y se desvanecen */
