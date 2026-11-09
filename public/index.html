@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Empresa Chumita</title>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
 :root{--bg:#060C1C;--card:#0D1628;--line:#1B2740;--fld:#1E2A44;--ink:#EAF1FB;--mute:#8A9BB3;--cy:#35DDE6;--in:#41D885;--out:#FA5F63;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -88,6 +89,7 @@ input:focus,button:focus-visible{outline:3px solid var(--cy);outline-offset:1px}
 .chart svg{width:100%;height:auto;display:block;margin-top:12px;border-radius:12px}#rt button{padding:10px;font-size:15px}
 #ri b{color:var(--ink)}
 .fb{cursor:pointer}.fb.pend{border-left:3px solid var(--cy);padding-left:8px}.fb.pend small{color:var(--cy)}#ipv b{color:var(--ink)}
+body:not(.admin) .adm{display:none}body.lector .exp,body.lector .hist,body.lector .acts,body.lector #pres{display:none}
 .toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--cy);color:#06182A;font-weight:600;padding:10px 18px;border-radius:999px;z-index:50;max-width:90%;text-align:center}
 .lock{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(120% 90% at 0% 0%,#06406b 0%,#07152b 42%,#050a18 100%);padding:calc(24px + env(safe-area-inset-top,0px)) 24px calc(24px + env(safe-area-inset-bottom,0px))}
 .lk{width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px}
@@ -116,8 +118,8 @@ input:focus,button:focus-visible{outline:3px solid var(--cy);outline-offset:1px}
 
 <div id="lock" class="lock hide"><div class="lk">
   <svg class="ic"><use href="#i-lock"/></svg>
-  <h1>Ingresa tu contraseña</h1>
-  <input id="pin" type="password" autocomplete="off" aria-label="Contraseña">
+  <h1>Ingresa a tu cuenta</h1>
+  <input id="mail" type="email" autocomplete="username" placeholder="Correo" aria-label="Correo"><input id="pin" type="password" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña">
   <div id="le" class="err"></div>
   <button class="entrar" id="enter">Entrar</button>
 </div></div>
@@ -177,8 +179,8 @@ var BASE=[
  {n:"Aumento de capital por terceros",t:"out",h:"Es dinero prestado y no es propio, por eso va a Egresos."}
 ];
 var S;
-try{S=JSON.parse(localStorage.getItem("hapi")||"null")}catch(e){S=null}
-if(!S)S={custom:[],ops:[],from:"2026-10-30",to:today()};
+S=null;
+if(!S)S={custom:[],ops:[],bank:[],from:today().slice(0,4)+"-01-01",to:today()};
 if(S.v!==2){S.pin="102019";S.v=2}
 S.tc=S.tc||3.452;S.custom=S.custom||[];S.bank=S.bank||[];
 S.ops.forEach(function(o){if(o.p===undefined){o.p=o.a;o.cur="PEN"}});
@@ -199,6 +201,7 @@ $("#pin").addEventListener("keydown",function(e){if(e.key==="Enter")tryEnter()})
 
 /* Pantalla principal */
 function render(){
+  if(ROL==="lector"){renderLector();return}
   $("#f").value=S.from;$("#t").value=S.to;
   $("#dol").textContent="Dólar hoy: S/ "+S.tc;
   var sel=period();
@@ -296,7 +299,7 @@ $("#sheet").addEventListener("click",function(e){
     if(!(a>0)){$("#se").textContent="Escribe un monto mayor a cero.";return}
     if(u&&!(tc>0)){$("#se").textContent="Escribe el tipo de cambio.";return}
     if(!d){$("#se").textContent="Elige una fecha.";return}
-    var id=S.ops.reduce(function(m,o){return Math.max(m,o.id)},0)+1,p=r2(a*tc);
+    var id=-Date.now(),p=r2(a*tc);
     var o={id:id,d:d,c:sh.c,t:sh.t,cur:sh.cur,a:r2(a),tc:tc,p:p,x:$("#dx").value.trim()};
     if(sh.img)o.img=sh.img;
     if(sh.edit){var ex=S.ops.filter(function(x){return x.id===sh.edit})[0];o.id=ex.id;S.ops[S.ops.indexOf(ex)]=o}else S.ops.push(o);if(sh.bank){var bk=(S.bank||[]).filter(function(x){return x.id===sh.bank})[0];if(bk)bk.link=o.id}if(u)S.tc=tc;
@@ -308,7 +311,7 @@ $("#sheet").addEventListener("click",function(e){
 
 /* Mi cuenta y guía */
 $("#bperf").onclick=function(){
-  $("#sheet").innerHTML='<h2>Mi cuenta</h2><button class="save" id="pres" style="background:var(--cy);margin:0 0 4px">Resumen en velas y gráficos</button><span class="lb">Tipo de cambio <small>(S/ por cada $ 1)</small></span><input id="ptc" class="num" data-dec="4" inputmode="decimal" value="'+S.tc+'"><span class="lb">Nueva contraseña <small>(opcional)</small></span><input id="pnp" type="password" autocomplete="off" placeholder="Déjalo vacío para mantener la actual"><div id="se" class="err"></div><button class="save" id="pok" style="background:var(--cy)">Guardar</button><button class="save" id="plk" style="background:var(--fld);color:var(--ink);margin-top:10px">Bloquear ahora</button><div style="text-align:center"><button class="link" id="prs">Borrar todo y empezar de cero</button></div>';
+  $("#sheet").innerHTML='<h2>Mi cuenta</h2><button class="save" id="pres" style="background:var(--cy);margin:0 0 4px">Resumen en velas y gráficos</button><span class="lb">Tipo de cambio <small>(S/ por cada $ 1)</small></span><input id="ptc" class="num" data-dec="4" inputmode="decimal" value="'+S.tc+'"><span class="lb">Nueva contraseña <small>(opcional)</small></span><input id="pnp" type="password" autocomplete="off" placeholder="Déjalo vacío para mantener la actual"><div id="se" class="err"></div><button class="save" id="pok" style="background:var(--cy)">Guardar</button><button class="save" id="plk" style="background:var(--fld);color:var(--ink);margin-top:10px">Cerrar sesión</button><div class="adm" style="text-align:center"><button class="link" id="prs">Borrar TODOS los movimientos de la empresa</button></div>';
   $("#shade").classList.remove("hide");
 };
 $("#sheet").addEventListener("click",function(e){
@@ -316,8 +319,8 @@ $("#sheet").addEventListener("click",function(e){
   if(id==="pok"){
     var t=parseFloat($("#ptc").value),p=$("#pnp").value;
     if(p&&p.length<4){$("#se").textContent="La contraseña debe tener al menos 4 caracteres.";return}
-    if(t>0)S.tc=t;if(p)S.pin=p;save();closeSheet();render();toast("Cambios guardados");
-  }else if(id==="plk"){closeSheet();showLock()}
+    if(t>0)S.tc=t;if(p)sb.auth.updateUser({password:p}).then(function(r){toast(r.error?"No se pudo cambiar la contraseña":"Contraseña cambiada")});save();closeSheet();render();toast("Cambios guardados");
+  }else if(id==="plk"){closeSheet();logout()}
   else if(id==="prs"){
     if(!S.rs){S.rs=1;e.target.textContent="Toca otra vez para confirmar";return}
     S.rs=0;S.ops=[];save();closeSheet();render();toast("Todo en cero. ¡Empezamos!");
@@ -621,7 +624,7 @@ function renderFaro(){
 }
 function openImport(){
   imp={rows:[],cur:'PEN'};
-  $('#sheet').innerHTML='<h2>Importar del banco</h2><div class="tip" style="margin:0">💡 Descarga el estado de cuenta desde la banca por internet de tu banco (Excel o CSV) y súbelo aquí. Todo queda en el Faro, sin clasificar. Después tú eliges si cada uno fue compra, venta, anticipo, etc.</div><span class="lb">Moneda de la cuenta</span><div class="seg" id="ic"><button data-bcur="PEN" class="on">S/ Soles</button><button data-bcur="USD">$ Dólares</button></div><label class="photo" style="margin-top:14px"><svg class="ic"><use href="#i-up"/></svg><span id="ift">Elegir archivo (Excel o CSV)</span><input id="ifl" type="file" accept=".xlsx,.xls,.csv,text/csv" class="hide"></label><div id="ipv" class="sub"></div><div id="se" class="err"></div><button class="save hide" id="iok" style="background:var(--cy)">Importar al Faro</button><button class="save" id="cl" style="background:var(--fld);color:var(--ink);margin-top:10px">Cerrar</button><div style="text-align:center"><button class="link" id="fclr">Vaciar el Faro</button></div>';
+  $('#sheet').innerHTML='<h2>Importar del banco</h2><div class="tip" style="margin:0">💡 Descarga el estado de cuenta desde la banca por internet de tu banco (Excel o CSV) y súbelo aquí. Todo queda en el Faro, sin clasificar. Después tú eliges si cada uno fue compra, venta, anticipo, etc.</div><span class="lb">Moneda de la cuenta</span><div class="seg" id="ic"><button data-bcur="PEN" class="on">S/ Soles</button><button data-bcur="USD">$ Dólares</button></div><label class="photo" style="margin-top:14px"><svg class="ic"><use href="#i-up"/></svg><span id="ift">Elegir archivo (Excel o CSV)</span><input id="ifl" type="file" accept=".xlsx,.xls,.csv,text/csv" class="hide"></label><div id="ipv" class="sub"></div><div id="se" class="err"></div><button class="save hide" id="iok" style="background:var(--cy)">Importar al Faro</button><button class="save" id="cl" style="background:var(--fld);color:var(--ink);margin-top:10px">Cerrar</button><div class="adm" style="text-align:center"><button class="link" id="fclr">Vaciar el Faro</button></div>';
   $('#shade').classList.remove('hide');
 }
 async function readBank(file){
@@ -661,7 +664,7 @@ $('#sheet').addEventListener('click',function(e){
   if(el.dataset.bcur){imp.cur=el.dataset.bcur;document.querySelectorAll('#ic button').forEach(function(b){b.classList.toggle('on',b===el)})}
   else if(el.id==='iok'){
     var id=S.bank.reduce(function(m,b){return Math.max(m,b.id)},0),mn=S.from,mx=S.to,n=imp.rows.length;
-    imp.rows.forEach(function(r){id++;S.bank.push({id:id,d:r.d,desc:r.desc,a:r.a,t:r.t,cur:imp.cur,k:r.k,link:null});if(r.d<mn)mn=r.d;if(r.d>mx)mx=r.d});
+    imp.rows.forEach(function(r){id++;S.bank.push({id:-(Date.now()*1000+id),d:r.d,desc:r.desc,a:r.a,t:r.t,cur:imp.cur,k:r.k,link:null});if(r.d<mn)mn=r.d;if(r.d>mx)mx=r.d});
     S.from=mn;S.to=mx;save();closeSheet();render();
     $('#bf').setAttribute('aria-expanded','true');$('#flist').classList.remove('hide');toast(n+' movimientos en el Faro');
   }else if(el.id==='fclr'){
@@ -742,6 +745,120 @@ $('#bpdf').onclick=async function(){
   }catch(e){toast('No se pudo preparar el PDF')}
 };
 
+/* Conexión con Supabase (base de datos compartida) */
+var SB_URL='https://xzkjvpbiwmcjwshsdgdu.supabase.co',SB_KEY='sb_publishable_UIIhYJ1iNKKFcM_PjY_pDA_69TT_FyQ';
+var sb=null,UID=null,ROL=null,READY=false,syncing=false,again=false,REM={ops:{},bank:{},cat:{},tc:null};
+function opRow(o){return{fecha:o.d,categoria:o.c,tipo:o.t,moneda:o.cur==='USD'?'USD':'PEN',monto:+o.a,tipo_cambio:+(o.tc||1),nota:o.x||null,foto_path:o.imgPath||null}}
+function rowOp(r){return{id:r.id,d:r.fecha,c:r.categoria,t:r.tipo,cur:r.moneda,a:+r.monto,tc:+r.tipo_cambio,p:+r.monto_soles,x:r.nota||'',img:null,imgPath:r.foto_path||null,_r:1}}
+function rowBank(r){return{id:r.id,d:r.fecha,desc:r.descripcion||'',a:+r.monto,t:r.tipo,cur:r.moneda,k:r.clave,link:r.movimiento_id,_r:1}}
+async function fetchAll(t){var out=[],i=0;for(;;){var r=await sb.from(t).select('*').order('id').range(i,i+999);if(r.error)throw r.error;out=out.concat(r.data);if(r.data.length<1000)break;i+=1000}return out}
+async function loadAll(){
+  var u=await sb.auth.getUser();UID=u.data.user.id;
+  var pr=await sb.from('perfiles').select('rol').eq('id',UID).maybeSingle();
+  ROL=pr.data?pr.data.rol:'lector';
+  document.body.classList.toggle('lector',ROL==='lector');document.body.classList.toggle('admin',ROL==='admin');
+  READY=false;
+  if(ROL==='lector'){S.ops=[];S.bank=[];READY=true;return}
+  var R=await Promise.all([fetchAll('movimientos'),fetchAll('faro'),sb.from('categorias').select('nombre,tipo'),sb.from('config').select('valor').eq('clave','tipo_cambio').maybeSingle()]);
+  S.ops=R[0].map(rowOp);S.bank=R[1].map(rowBank);
+  S.custom=(R[2].data||[]).map(function(c){return{n:c.nombre,t:c.tipo,h:'Tu opción nueva: la anotamos en '+(c.tipo==='in'?'Ingresos':'Egresos')+'.'}});
+  if(R[3].data)S.tc=parseFloat(R[3].data.valor)||S.tc;
+  REM={ops:{},bank:{},cat:{},tc:S.tc};
+  S.ops.forEach(function(o){REM.ops[o.id]=opRow(o)});
+  S.bank.forEach(function(b){REM.bank[b.id]=b.link||null});
+  S.custom.forEach(function(c){REM.cat[c.n]=1});
+  var paths=S.ops.filter(function(o){return o.imgPath}).map(function(o){return o.imgPath});
+  if(paths.length){var sg=await sb.storage.from('comprobantes').createSignedUrls(paths,3600);(sg.data||[]).forEach(function(x){S.ops.forEach(function(o){if(o.imgPath===x.path&&x.signedUrl)o.img=x.signedUrl})})}
+  READY=true;
+}
+function syncQ(){
+  if(!READY||ROL==='lector'||!sb)return;
+  if(syncing){again=true;return}
+  syncing=true;
+  sync().catch(function(){toast('No se pudo guardar. Revisa tu internet.')}).then(function(){syncing=false;render();if(again){again=false;syncQ()}});
+}
+function save(){syncQ();return true}
+async function sync(){
+  var err=0,reload=false,live={},i,o,r,old,id;
+  for(i=0;i<S.custom.length;i++){var c=S.custom[i];if(!REM.cat[c.n]){r=await sb.from('categorias').insert({nombre:c.n,tipo:c.t});if(r.error&&r.error.code!=='23505')err++;else REM.cat[c.n]=1}}
+  S.ops.forEach(function(x){live[x.id]=1});
+  for(id in REM.ops){if(!live[id]){r=await sb.from('movimientos').delete().eq('id',id);if(r.error)err++;else delete REM.ops[id]}}
+  for(i=0;i<S.ops.length;i++){
+    o=S.ops[i];var row=opRow(o);
+    if(o.img&&o.img.indexOf('data:')===0){
+      var up=UID+'/'+Date.now()+'.jpg',bl=await (await fetch(o.img)).blob();
+      r=await sb.storage.from('comprobantes').upload(up,bl,{contentType:'image/jpeg'});
+      if(r.error){err++;continue}
+      row.foto_path=up;o.imgPath=up;o.img=URL.createObjectURL(bl);
+    }else if(!row.foto_path&&REM.ops[o.id])row.foto_path=REM.ops[o.id].foto_path;
+    if(o.id<0){
+      r=await sb.from('movimientos').insert(row).select().single();
+      if(r.error){err++;continue}
+      old=o.id;o.id=r.data.id;o._r=1;o.p=+r.data.monto_soles;REM.ops[o.id]=opRow(rowOp(r.data));
+      S.bank.forEach(function(b){if(b.link===old)b.link=o.id});
+    }else if(JSON.stringify(row)!==JSON.stringify(REM.ops[o.id])){
+      r=await sb.from('movimientos').update(Object.assign({editado_en:new Date().toISOString()},row)).eq('id',o.id).select();
+      if(r.error||!r.data||!r.data.length){err++;reload=true}else REM.ops[o.id]=row;
+    }
+  }
+  live={};S.bank.forEach(function(x){live[x.id]=1});
+  for(id in REM.bank){if(!live[id]){r=await sb.from('faro').delete().eq('id',id);if(r.error)err++;else delete REM.bank[id]}}
+  var nb=S.bank.filter(function(b){return b.id<0});
+  for(i=0;i<nb.length;i+=200){
+    var ch=nb.slice(i,i+200);
+    r=await sb.from('faro').upsert(ch.map(function(b){return{fecha:b.d,descripcion:b.desc,tipo:b.t,moneda:b.cur==='USD'?'USD':'PEN',monto:b.a,clave:b.k,movimiento_id:b.link>0?b.link:null}}),{onConflict:'clave',ignoreDuplicates:true}).select();
+    if(r.error){err++;continue}
+    (r.data||[]).forEach(function(d){var b=ch.filter(function(x){return x.k===d.clave})[0];if(b){b.id=d.id;b._r=1;REM.bank[d.id]=d.movimiento_id||null}});
+    if((r.data||[]).length<ch.length)reload=true;
+  }
+  for(i=0;i<S.bank.length;i++){
+    var bk=S.bank[i],lk=bk.link>0?bk.link:null;
+    if(bk.id>0&&REM.bank[bk.id]!==lk){r=await sb.from('faro').update({movimiento_id:lk}).eq('id',bk.id);if(r.error)err++;else REM.bank[bk.id]=lk}
+  }
+  if(ROL==='admin'&&+S.tc!==+REM.tc){r=await sb.from('config').upsert({clave:'tipo_cambio',valor:String(S.tc)},{onConflict:'clave'});if(!r.error)REM.tc=S.tc}
+  if(err)toast('Algunos cambios no se guardaron. Revisa tu conexión o tus permisos.');
+  if(reload)await loadAll();
+}
+async function renderLector(){
+  var r=await sb.rpc('resumen',{desde:S.from,hasta:S.to});
+  if(r.error||!r.data||!r.data.length){toast('No se pudo cargar el resumen');return}
+  var x=r.data[0],ti=+x.ingresos,te=+x.egresos,tt=ti+te,pi=tt?ti/tt*100:0,bal=ti-te;
+  $('#f').value=S.from;$('#t').value=S.to;$('#dol').textContent='';
+  var b=$('#bal');b.textContent=money(bal);b.className='big'+(bal<0?' neg':'');
+  $('#ti').textContent=money(ti);$('#to').textContent=money(te);$('#ps').textContent=money(+x.sin_gastos);
+  $('#arc').setAttribute('stroke-dasharray',(pi*2.5133).toFixed(2)+' 251.33');
+  $('#pi').textContent=Math.round(pi)+'%';$('#po').textContent=(tt?Math.round(100-pi):0)+'%';
+  $('#cnt').textContent=x.operaciones+' operaciones en estas fechas';
+}
+async function enterApp(){
+  try{await loadAll()}catch(e){toast('No se pudo cargar. Revisa tu internet.');showLock();return}
+  S.ops.map(function(o){return o.d}).concat(S.bank.map(function(b){return b.d})).forEach(function(d){if(d<S.from)S.from=d;if(d>S.to)S.to=d});
+  $('#lock').classList.add('hide');$('#main').classList.remove('hide');render();
+}
+async function tryEnter(){
+  var r=await sb.auth.signInWithPassword({email:$('#mail').value.trim(),password:$('#pin').value});
+  $('#pin').value='';
+  if(r.error){
+    var em=(String(r.error.message||'')+' '+String(r.error.name||'')).toLowerCase();
+    $('#le').textContent=(/fetch|network|retryable/.test(em)||r.error.status===0)?'No se pudo conectar con el servidor. Abre la app desde tu sitio publicado en Cloudflare; la vista previa de Claude bloquea la conexión.':em.indexOf('not confirmed')>=0?'Tu correo aún no está confirmado en Supabase.':'Correo o contraseña incorrectos.';
+    return}
+  $('#le').textContent='';await enterApp();
+}
+async function logout(){await sb.auth.signOut();S.ops=[];S.bank=[];READY=false;showLock()}
+function boot(){
+  showLock();
+  if(!window.supabase){$('#le').textContent='No se pudo cargar la conexión. Revisa tu internet.';return}
+  sb=supabase.createClient(SB_URL,SB_KEY);
+  $('#mail').addEventListener('keydown',function(e){if(e.key==='Enter')$('#pin').focus()});
+  window.addEventListener('online',syncQ);
+  setInterval(function(){
+    if(!READY||syncing||again||document.hidden||!$('#shade').classList.contains('hide'))return;
+    if(S.ops.some(function(o){return o.id<0})||S.bank.some(function(b){return b.id<0}))return;
+    loadAll().then(render).catch(function(){});
+  },60000);
+  sb.auth.getSession().then(function(r){if(r.data.session)enterApp()});
+}
+
 /* Oro, plata y cobre que suben y se desvanecen */
 (function(){
   if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
@@ -754,7 +871,7 @@ $('#bpdf').onclick=async function(){
     o.appendChild(p);
   }
 })();
-save();showLock();
+boot();
 </script>
 </body>
 </html>
