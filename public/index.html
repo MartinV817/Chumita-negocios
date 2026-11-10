@@ -3,6 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060C1C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Chumita">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Empresa Chumita</title>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -132,7 +140,7 @@ body.lector #bm2m,body.lector #wban{display:none}
 <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.7.6 1 1.3 1 2.1h5c0-.8.3-1.5 1-2.1A6 6 0 0 0 12 3z"/></symbol>
 <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="3"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
 </defs></svg>
- 
+
 <div id="boot" class="boot" aria-label="Cargando"><svg class="logo" viewBox="0 0 64 64"><use href="#i-logo"/></svg><div class="ld"><i></i></div></div>
 <div id="lock" class="lock hide"><div class="lk">
   <svg class="ic"><use href="#i-lock"/></svg>
@@ -140,8 +148,9 @@ body.lector #bm2m,body.lector #wban{display:none}
   <input id="mail" type="email" autocomplete="username" placeholder="Correo" aria-label="Correo"><input id="pin" type="password" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña"><label class="keep"><input type="checkbox" id="keep" checked> Mantener sesión iniciada en este dispositivo</label>
   <div id="le" class="err"></div>
   <button class="entrar" id="enter">Entrar</button>
+    <button class="link" id="linst" style="color:#8FE9F5;margin:4px auto 0">📲 Instalar la app en este dispositivo</button>
 </div></div>
- 
+
 <main id="main" class="app hide">
   <div class="top">
     <button class="ib" id="bperf" aria-label="Mi cuenta"><svg class="ic"><use href="#i-user"/></svg></button>
@@ -175,11 +184,11 @@ body.lector #bm2m,body.lector #wban{display:none}
     <button class="bo" id="bout"><svg class="ic"><use href="#i-down"/></svg>Egresos</button>
   </div>
 </main>
- 
+
 <div id="shade" class="shade hide"><div class="sheet" id="sheet"></div></div>
 <div id="toast" class="toast hide" role="status"></div>
 <div class="ore" id="ore" aria-hidden="true"></div>
- 
+
 <script>
 var $=function(s){return document.querySelector(s)};
 var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
@@ -208,7 +217,7 @@ function save(){try{localStorage.setItem("hapi",JSON.stringify(S));return true}c
 function all(){return BASE.concat(S.custom)}
 function num(v,dec){v=v.replace(",",".").replace(/[^\d.]/g,"");var i=v.indexOf(".");if(i>=0)v=v.slice(0,i+1)+v.slice(i+1).replace(/\./g,"").slice(0,dec);return v}
 var tt;function toast(m){var t=$("#toast");t.textContent=m;t.classList.remove("hide");clearTimeout(tt);tt=setTimeout(function(){t.classList.add("hide")},3200)}
- 
+
 /* Contraseña */
 function showLock(){$("#main").classList.add("hide");$("#lock").classList.remove("hide");$("#pin").value="";$("#le").textContent=""}
 function tryEnter(){
@@ -217,8 +226,8 @@ function tryEnter(){
 }
 $("#enter").onclick=tryEnter;
 $("#pin").addEventListener("keydown",function(e){if(e.key==="Enter")tryEnter()});
- 
- 
+
+
 /* Pantalla principal */
 function render(){
   m2mBadge();wBanner();
@@ -251,7 +260,7 @@ $("#list").addEventListener("click",function(e){
   $("#sheet").innerHTML='<h2>Comprobante</h2><img alt="Comprobante" style="width:100%;border-radius:14px" src="'+o.img+'"><button class="save" id="cl" style="background:var(--fld);color:var(--ink)">Cerrar</button>';
   $("#shade").classList.remove("hide");
 });
- 
+
 /* Hoja de registro */
 var sh={};
 function openSheet(t){var f=all().filter(function(c){return c.t===t})[0];sh={t:t,c:f.n,cur:"PEN",img:"",add:false};drawSheet();$("#shade").classList.remove("hide")}
@@ -338,10 +347,10 @@ $("#sheet").addEventListener("click",function(e){
     toast(ok?(sh.edit?"Corregido: ":sh.t==="in"?"Ingreso anotado: ":"Egreso anotado: ")+money(p)+(u?" ("+usd(a)+")":""):"No se pudo guardar. Prueba sin la foto.");
   }
 });
- 
+
 /* Mi cuenta y guía */
 $("#bperf").onclick=function(){
-  $("#sheet").innerHTML='<h2>Mi cuenta</h2><button class="save" id="pres" style="background:var(--cy);margin:0 0 4px">Resumen en velas y gráficos</button><button class="save adm" id="ppers" style="background:var(--fld);color:var(--ink);margin:10px 0 4px">Personal y formalización</button><span class="lb">Tu nombre o apodo</span><input id="pnm" maxlength="30" value="'+esc(ME)+'"><span class="lb">Tipo de cambio <small>(S/ por cada $ 1)</small></span><input id="ptc" class="num" data-dec="4" inputmode="decimal" value="'+S.tc+'"><span class="lb">Nueva contraseña <small>(opcional)</small></span><input id="pnp" type="password" autocomplete="off" placeholder="Déjalo vacío para mantener la actual"><div id="se" class="err"></div><button class="save" id="pok" style="background:var(--cy)">Guardar</button><button class="save" id="plk" style="background:var(--fld);color:var(--ink);margin-top:10px">Cerrar sesión</button><div class="adm" style="text-align:center"><button class="link" id="prs">Borrar TODOS los movimientos de la empresa</button></div>';
+  $("#sheet").innerHTML='<h2>Mi cuenta</h2><button class="save" id="pinst" style="background:var(--fld);color:var(--ink);margin:0 0 10px">📲 Instalar la app</button><button class="save" id="pres" style="background:var(--cy);margin:0 0 4px">Resumen en velas y gráficos</button><button class="save adm" id="ppers" style="background:var(--fld);color:var(--ink);margin:10px 0 4px">Personal y formalización</button><span class="lb">Tu nombre o apodo</span><input id="pnm" maxlength="30" value="'+esc(ME)+'"><span class="lb">Tipo de cambio <small>(S/ por cada $ 1)</small></span><input id="ptc" class="num" data-dec="4" inputmode="decimal" value="'+S.tc+'"><span class="lb">Nueva contraseña <small>(opcional)</small></span><input id="pnp" type="password" autocomplete="off" placeholder="Déjalo vacío para mantener la actual"><div id="se" class="err"></div><button class="save" id="pok" style="background:var(--cy)">Guardar</button><button class="save" id="plk" style="background:var(--fld);color:var(--ink);margin-top:10px">Cerrar sesión</button><div class="adm" style="text-align:center"><button class="link" id="prs">Borrar TODOS los movimientos de la empresa</button></div>';
   $("#shade").classList.remove("hide");
 };
 $("#sheet").addEventListener("click",function(e){
@@ -360,7 +369,7 @@ $("#bguide").onclick=function(){
   $("#sheet").innerHTML='<h2>Guía de Hapi</h2><div class="gl"><p>Aquí solo cuenta el <b>dinero real</b>: lo que entra y lo que sale de tu cuenta.</p><p><b>Venta, Alquiler, Mantenimiento:</b> entra dinero, van a Ingresos.</p><p><b>Compra y Anticipo:</b> el dinero ya salió, aunque tengas el bien. Van a Egresos y se pueden recuperar.</p><p><b>Gasto:</b> luz, suscripciones, transporte. Sale dinero y no se recupera.</p><p><b>Capital propio:</b> dinero tuyo, va a Ingresos. <b>Capital por terceros:</b> dinero prestado, va a Egresos.</p><p><b>Sin gastos:</b> tus ingresos menos los gastos. Es lo que realmente tienes entre dinero y bienes recuperables.</p><p>Si eliges una opción en el botón equivocado, yo la paso al lugar correcto.</p></div><button class="save" id="cl" style="background:var(--cy)">Entendido</button>';
   $("#shade").classList.remove("hide");
 };
- 
+
 /* Periodo, guía y exportación */
 function period(){
   var sel=S.ops.filter(function(o){return o.d>=S.from&&o.d<=S.to}).sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:a.id-b.id});
@@ -419,7 +428,7 @@ $("#bpdf").onclick=function(){
   doc.text("Patrimonio = dinero en cuenta (ingresos - egresos). P. sin gastos = ingresos - gastos. Montos en soles (S/).",14,y);
   dl("Flujo_Chumita_"+S.from+"_a_"+S.to+".pdf",doc.output("arraybuffer"));
 };
- 
+
 /* Resumen, historial y correcciones */
 var fix=false;
 function days(mode){
@@ -498,7 +507,7 @@ function showImg(id){
   $('#sheet').innerHTML='<h2>Comprobante</h2><img alt="Comprobante" style="width:100%;border-radius:14px" src="'+o.img+'"><button class="save" id="cl" style="background:var(--fld);color:var(--ink)">Cerrar</button>';
 }
 $('#bh').onclick=function(){var o=$('#bh').getAttribute('aria-expanded')==='true';$('#bh').setAttribute('aria-expanded',o?'false':'true');$('#list').classList.toggle('hide',o)};
- 
+
 $('#bfix').onclick=function(){
   fix=!fix;this.classList.toggle('on',fix);this.textContent=fix?'Listo':'Corregir';
   if(fix){$('#bh').setAttribute('aria-expanded','true');$('#list').classList.remove('hide');toast('Toca el movimiento que quieres corregir')}
@@ -516,7 +525,7 @@ $('#sheet').addEventListener('click',function(e){
     S.ops=S.ops.filter(function(x){return x.id!==sh.edit});save();closeSheet();render();toast('Movimiento eliminado');
   }
 });
- 
+
 /* Herramientas, PDF renovado y velas interactivas */
 var PL="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",CS={lo:0,hi:1,slot:1};
 function need(u){return new Promise(function(res){
@@ -600,7 +609,7 @@ function bindCandles(a){
   svg.addEventListener("pointermove",mv);svg.addEventListener("pointerdown",mv);
   svg.addEventListener("pointerleave",function(e){if(e.pointerType==="mouse")$("#xh").setAttribute("visibility","hidden")});
 }
- 
+
 /* Faro del banco, Excel y PDF renovados */
 var XJ='https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js',XL0='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',imp={rows:[],cur:'PEN'};
 function fl(a){return{type:'pattern',pattern:'solid',fgColor:{argb:a}}}
@@ -775,7 +784,7 @@ $('#bpdf').onclick=async function(){
     dl('Flujo_Chumita_'+S.from+'_a_'+S.to+'.pdf',doc.output('arraybuffer'));
   }catch(e){toast('No se pudo preparar el PDF')}
 };
- 
+
 /* Conexión con Supabase (base de datos compartida) */
 var SB_URL='https://xzkjvpbiwmcjwshsdgdu.supabase.co',SB_KEY='sb_publishable_UIIhYJ1iNKKFcM_PjY_pDA_69TT_FyQ';
 var sb=null,UID=null,ROL=null,READY=false,syncing=false,again=false,REM={ops:{},bank:{},cat:{},tc:null},ME='',NEEDNAME=false,NAMES={};
@@ -939,7 +948,7 @@ function boot(){
     else if(s)enterApp();
   });
 }
- 
+
 /* Oro, plata y cobre que suben y se desvanecen */
 (function(){
   if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
@@ -1119,6 +1128,25 @@ function boot(){
     else{showLock();bootOff()}
   }).catch(function(){showLock();bootOff()});
 }
+/* Instalar como app (PWA) */
+var DEF=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();DEF=e});
+window.addEventListener('appinstalled',function(){DEF=null;toast('App instalada')});
+function isStandalone(){return (window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true}
+async function instalar(){
+  if(isStandalone()){toast('La app ya está instalada en este dispositivo');return}
+  if(DEF){DEF.prompt();try{await DEF.userChoice}catch(e){}DEF=null;return}
+  var ua=navigator.userAgent,ios=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),pasos;
+  if(ios)pasos='<p><b>En iPhone o iPad (con Safari):</b></p><p>1. Toca el botón <b>Compartir</b> (el cuadro con una flecha hacia arriba).</p><p>2. Elige <b>Agregar a pantalla de inicio</b>.</p><p>3. Toca <b>Agregar</b>. El ícono de Chumita queda en tu pantalla.</p>';
+  else if(/android/i.test(ua))pasos='<p><b>En Android (con Chrome):</b></p><p>1. Toca los <b>tres puntos</b> de arriba a la derecha.</p><p>2. Elige <b>Instalar app</b> (o <b>Agregar a la pantalla principal</b>).</p><p>3. Confirma. El ícono de Chumita queda en tu pantalla.</p>';
+  else pasos='<p><b>En computadora (Chrome o Edge):</b></p><p>1. Mira a la derecha de la barra de direcciones: aparece un ícono de <b>instalar</b>.</p><p>2. Tócalo y elige <b>Instalar</b>. Se abre como una app y queda en tu escritorio.</p><p>Si no lo ves, abre el menú (tres puntos) y busca <b>Instalar Chumita</b>.</p>';
+  $('#sheet').innerHTML='<h2>Instalar la app</h2><div class="gl">'+pasos+'</div><button class="save" id="cl" style="background:var(--cy)">Entendido</button>';
+  $('#shade').classList.remove('hide');
+}
+$('#linst').onclick=instalar;
+$('#sheet').addEventListener('click',function(e){if(e.target.closest('#pinst'))instalar()});
+if(isStandalone())$('#linst').classList.add('hide');
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
 boot();
 </script>
 </body>
