@@ -1,6 +1,6 @@
 // Service worker de la app de Chumita: abre rápido y recuerda lo básico.
 // Los datos de Supabase NUNCA se guardan aquí.
-const V = 'chumita-v2';
+const V = 'chumita-v3';
 const SHELL = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 const EXTRA = ['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
@@ -32,6 +32,11 @@ self.addEventListener('fetch', e => {
       const net = fetch(r).then(res => {
         if (res && (res.ok || res.type === 'opaque')) { const cp = res.clone(); caches.open(V).then(c => c.put(r, cp)); }
         return res;
+      }).catch(() => hit);
+      return hit || net;
+    })
+  );
+});
       }).catch(() => hit);
       return hit || net;
     })
