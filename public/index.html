@@ -121,7 +121,7 @@ button.bd{cursor:pointer}
 .ore{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:60}.ore i{position:absolute;bottom:-30px;opacity:0;animation:rise linear infinite}
 @keyframes rise{0%{transform:translateY(0) rotate(0);opacity:0}15%{opacity:.36}100%{transform:translateY(-75vh) rotate(160deg);opacity:0}}
 body:not(.admin) .adm{display:none}
-body.lector .tabs,body.lector .exp,body.lector .hist,body.lector .acts,body.lector #bm2m,body.lector #wban,body.lector #wk,body.lector #pres,body.lector .nolec{display:none}
+body.lector .dates,body.lector .tabs,body.lector .exp,body.lector .hist,body.lector .acts,body.lector #bm2m,body.lector #wban,body.lector #wk,body.lector #pres,body.lector .nolec{display:none}
 @media (prefers-reduced-motion:reduce){.boot .logo,.ld i,.app.in,.sp,.ore i{animation:none}}
 </style>
 </head>
@@ -161,10 +161,9 @@ body.lector .tabs,body.lector .exp,body.lector .hist,body.lector .acts,body.lect
   <div id="wban" class="wban hide" data-a="pers">⚠ <b id="wn"></b>. Toca para ver.</div>
   <nav class="tabs" id="tabs">
     <button data-a="tab" data-t="home" class="on">Inicio</button>
-    <button data-a="tab" data-t="esf">Situación</button>
-    <button data-a="tab" data-t="eer">Resultados</button>
-    <button data-a="tab" data-t="fe">Flujo</button>
+    <button data-a="tab" data-t="af">Activos fijos</button>
     <button data-a="tab" data-t="faro">Faro</button>
+    <button data-a="tab" data-t="cont">Info contable</button>
   </nav>
   <div class="dates"><label>Desde<input type="date" id="f"></label><label>Hasta<input type="date" id="t"></label></div>
 
@@ -174,30 +173,43 @@ body.lector .tabs,body.lector .exp,body.lector .hist,body.lector .acts,body.lect
       <div class="big" id="kcaja"></div>
       <div class="sub" id="kdet"></div>
       <div class="kp">
-        <div>Patrimonio<b id="kpat"></b></div><div>IGV<b id="kigv"></b></div>
-        <div>Por cobrar<b id="kcob" class="in"></b></div><div>Por pagar<b id="kpag" class="out"></b></div>
+        <div>Me deben (por cobrar)<b id="kcob" class="in"></b></div><div>Debo (por pagar)<b id="kpag" class="out"></b></div>
       </div>
-      <div class="mid nolec">
-        <svg class="donut" viewBox="0 0 100 100" role="img" aria-label="Cobros frente a pagos"><g transform="rotate(-90 50 50)" fill="none" stroke-width="13"><circle cx="50" cy="50" r="40" stroke="#FA5F63" stroke-opacity=".7"/><circle id="arc" cx="50" cy="50" r="40" stroke="#41D885" stroke-dasharray="0 251.33"/></g></svg>
-        <div class="leg">
-          <div><span class="dot" style="background:var(--in)"></span>Cobros <b id="ti"></b></div>
-          <div><span class="dot" style="background:var(--out)"></span>Pagos <b id="to"></b></div>
-          <div class="sub">Sin gastos: <b id="ps"></b></div>
+      <button class="mini nolec" id="bmore" data-a="more" style="margin-top:12px;width:100%">Ver más detalles ▾</button>
+      <div id="more" class="hide">
+        <div class="kp">
+          <div>Patrimonio (lo que vale la empresa)<b id="kpat"></b></div><div>IGV<b id="kigv"></b></div>
+          <div>Activos fijos (valor actual)<b id="kaf"></b></div><div>Costo mensual de máquinas<b id="kcm"></b></div>
         </div>
+        <div class="mid nolec">
+          <svg class="donut" viewBox="0 0 100 100" role="img" aria-label="Cobros frente a pagos"><g transform="rotate(-90 50 50)" fill="none" stroke-width="13"><circle cx="50" cy="50" r="40" stroke="#FA5F63" stroke-opacity=".7"/><circle id="arc" cx="50" cy="50" r="40" stroke="#41D885" stroke-dasharray="0 251.33"/></g></svg>
+          <div class="leg">
+            <div><span class="dot" style="background:var(--in)"></span>Cobros <b id="ti"></b></div>
+            <div><span class="dot" style="background:var(--out)"></span>Pagos <b id="to"></b></div>
+            <div class="sub">Sin gastos: <b id="ps"></b></div>
+          </div>
+        </div>
+        <div class="pill nolec" id="cnt"></div>
+        <div id="wk" style="margin-top:14px"></div>
       </div>
-      <div class="pill nolec" id="cnt"></div>
     </div>
-    <div class="card" id="wk"></div>
-    <div class="exp"><button data-a="prev">Vista previa</button><button data-a="xls">Excel</button><button data-a="pdf">PDF</button></div>
     <section class="card hist">
       <div class="hh"><button class="hbtn" id="bh" data-a="bh" aria-expanded="false">Historial <span id="hn" style="color:var(--mute);font-weight:400"></span><svg class="ic chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><button class="mini" id="bfix" data-a="fix">Corregir</button></div>
       <div class="hide" id="list"></div>
     </section>
   </section>
-  <section id="v-esf" class="hide"></section>
-  <section id="v-eer" class="hide"></section>
-  <section id="v-fe" class="hide"></section>
+  <section id="v-af" class="hide"></section>
   <section id="v-faro" class="hide"></section>
+  <section id="v-cont" class="hide">
+    <div class="card">
+      <div class="sec"><span>Información contable</span></div>
+      <div class="note" style="margin:0">Para quien quiere ver los estados financieros. Para el día a día no hace falta.</div>
+      <div class="chips" id="csub" style="margin-top:10px"><button class="chip on" data-a="csub" data-v="esf">Situación</button><button class="chip" data-a="csub" data-v="eer">Resultados</button><button class="chip" data-a="csub" data-v="fe">Flujo</button></div>
+      <div class="sub" id="cdesc" style="margin-top:8px"></div>
+    </div>
+    <div id="v-esf"></div><div id="v-eer" class="hide"></div><div id="v-fe" class="hide"></div>
+    <div class="card"><div class="sec"><span>Ver o descargar todo</span></div><div class="exp" style="margin:0"><button data-a="prev">Vista previa</button><button data-a="xls">Excel</button><button data-a="pdf">PDF</button></div></div>
+  </section>
 
   <div class="acts">
     <button class="bA" data-a="act"><svg class="ic"><use href="#i-up"/></svg>ACTIVO<small>lo que tengo o me deben</small></button>
@@ -230,7 +242,7 @@ var tt;function toast(m){var t=$('#toast');t.textContent=m;t.classList.remove('h
 var NAME='Servicios Generales Chumita EIRL';
 
 /* ===== Estado ===== */
-var S={ops:[],custom:[],workers:[],tc:3.452,from:today().slice(0,4)+'-01-01',to:today()};
+var S={ops:[],custom:[],workers:[],af:[],tc:3.452,from:today().slice(0,4)+'-01-01',to:today()};
 var ROL=null,ME='',UID=null,NAMES={},READY=false,HASACC=false,WOK=false,NEEDNAME=false,MAIL='';
 var TAB='home',FIX=false,FARO='v',F=null;
 
@@ -239,19 +251,22 @@ var ACT=[
  {n:'Venta',nat:'activo',h:'Vendiste algo. Hasta que te paguen, es un DERECHO A COBRAR.'},
  {n:'Alquiler',nat:'activo',h:'Alquilaste una máquina. Hasta que te paguen, es un DERECHO A COBRAR.'},
  {n:'Mantenimiento',nat:'activo',h:'Hiciste un servicio de mantenimiento. Hasta que te paguen, es un DERECHO A COBRAR.'},
- {n:'Aumento de capital propio',nat:'activo',h:'Dinero tuyo que pones en la empresa. Sube tu PATRIMONIO. No lleva IGV.'}
+ {n:'Aumento de capital propio',nat:'activo',h:'Dinero tuyo que pones en la empresa. Sube tu PATRIMONIO. No lleva IGV.'},
+ {n:'Venta de activo fijo',nat:'activo',hid:true,h:'Vendiste una máquina o vehículo de la empresa. Sale de tus activos fijos.'}
 ];
 var PAS=[
  {n:'Compra',nat:'pasivo',h:'Compraste algo (repuestos, insumos). Es tu COSTO. Hasta que pagues, es un DERECHO A PAGAR.'},
  {n:'Gasto',nat:'pasivo',h:'Pagos del día a día: luz, transporte, suscripciones. Hasta que pagues, es un DERECHO A PAGAR.'},
  {n:'Remuneración',nat:'pasivo',h:'Sueldos y pagos al personal. Es un GASTO, normalmente sin IGV.'},
- {n:'Aumento de capital por terceros',nat:'pasivo',h:'Dinero prestado: entra a tu caja pero es una DEUDA. No sube tu patrimonio. No lleva IGV.'}
+ {n:'Aumento de capital por terceros',nat:'pasivo',h:'Dinero prestado: entra a tu caja pero es una DEUDA. No sube tu patrimonio. No lleva IGV.'},
+ {n:'Compra de activo fijo',nat:'pasivo',hid:true,h:'Compraste una máquina o vehículo. No es un gasto: entra como ACTIVO FIJO y se va depreciando.'}
 ];
 function cons(nat){return (nat==='activo'?ACT:PAS).concat(S.custom.filter(function(c){return c.nat===nat}))}
 function allCons(){return ACT.concat(PAS,S.custom)}
 function findCon(n){return allCons().filter(function(c){return c.n===n})[0]}
 function kindOf(o){
   var c=nrm(o.c);
+  if(/activo fijo/.test(c))return o.nat==='activo'?'vaf':'af';
   if(/capital propio/.test(c))return 'capp';
   if(/capital/.test(c)&&/tercero/.test(c))return 'capt';
   if(o.nat==='activo')return 'ing';
@@ -261,56 +276,90 @@ function isOp(o){return o.k==='ing'||o.k==='cos'||o.k==='gas'}
 function prep(o){
   o.a=+o.a||0;o.tc=+o.tc||1;
   o.p=r2(o.a*o.tc);o.igs=r2((+o.ig||0)*o.tc);o.bs=r2(o.p-o.igs);
-  o.ds=o.det?r2((+o.detm||0)*o.tc):0;o.k=kindOf(o);
+  o.ds=o.det?r2((+o.detm||0)*o.tc):0;o.k=kindOf(o);o.largo=!!o.largo;
   if(!o.devd)o.devd=o.d;if(!o.liqd)o.liqd=o.d;
   return o;
 }
 function dueOf(o){return (o.plazo>0&&o.dev&&!o.liq)?dAdd(o.d,o.plazo):null}
 
+/* ===== Activos fijos (no corrientes) ===== */
+var AFT=['Maquinaria','Vehículo','Equipo','Otro'];
+function afOp(a){for(var i=0;i<S.ops.length;i++){var o=S.ops[i];if(o.afid===a.id&&o.k==='af')return o}return null}
+function afSale(a){for(var i=0;i<S.ops.length;i++){var o=S.ops[i];if(o.afid===a.id&&o.k==='vaf')return o}return null}
+function afCost(a){if(a.orig==='compra'){var o=afOp(a);return o?o.bs:0}return +a.cost||0}
+function afAlta(a){if(a.orig==='compra'){var o=afOp(a);return(o&&o.dev)?o.devd:null}return a.alta||null}
+function afBaja(a){var s=afSale(a);return s?s.devd:(a.baja||null)}
+function lastDay(d){var t=new Date(d+'T12:00:00');return new Date(t.getFullYear(),t.getMonth()+1,0).getDate()===t.getDate()}
+function months(alta,t){var A=new Date(alta+'T12:00:00'),T=new Date(t+'T12:00:00');return Math.max(0,(T.getFullYear()*12+T.getMonth())-(A.getFullYear()*12+A.getMonth())+(lastDay(t)?1:0))}
+function afDepable(a){return Math.max(0,r2(afCost(a)-(+a.res||0)))}
+function afMonthly(a){var v=+a.vida||0;return v>0?afDepable(a)/(v*12):0}
+function depPer(a,t){
+  var al=afAlta(a);if(!al||t<al)return 0;
+  var bj=afBaja(a),te=(bj&&bj<t)?bj:t,d0=a.orig==='aporte'?(+a.depi||0):0;
+  var v=Math.min(afDepable(a),d0+months(al,te)*afMonthly(a));
+  return Math.max(0,r2(v-d0));
+}
+function depC(a,t){var al=afAlta(a);if(!al||t<al)return 0;return r2((a.orig==='aporte'?(+a.depi||0):0)+depPer(a,t))}
+function depTrib(a,t){var al=afAlta(a);if(!al||t<al)return 0;var bj=afBaja(a),te=(bj&&bj<t)?bj:t,c=afCost(a);return r2(Math.min(c,months(al,te)*c*(+a.tribp||0)/100/12))}
+function depTec(a){var v=+a.vth||0;return v>0?r2(afDepable(a)*Math.min(1,(+a.hus||0)/v)):0}
+function afCm(a){return r2(afMonthly(a)+(+a.cadic||0)+(+a.cseg||0)+(+a.cman||0)+(+a.cmat||0))}
+
 /* ===== Motor contable =====
-   Estado de situación financiera = foto a una fecha
-   Estado de resultados = devengos del período (sin IGV)
-   Flujo de efectivo = lo que de verdad se cobró o pagó */
+   Estado de situación financiera = foto a una fecha (corriente y no corriente)
+   Estado de resultados = devengos del período (sin IGV) y depreciación
+   Flujo de efectivo = lo que de verdad se cobró o pagó (operación, inversión, financiamiento) */
 function inD(o,t){return !!o.dev&&o.devd<=t}
 function inL(o,t){return !!o.liq&&o.liqd<=t}
 function esf(t){
-  var r={caja:0,det:0,ar:0,antp:0,cf:0,ap:0,antc:0,df:0,loan:0,capital:0};
+  var r={caja:0,det:0,ar:0,arf:0,antp:0,antpf:0,cf:0,cff:0,ap:0,apf:0,antc:0,antcf:0,df:0,dff:0,loanC:0,loanL:0,capital:0,afc:0,afd:0};
   S.ops.forEach(function(o){
-    var k=o.k,D=inD(o,t),L=inL(o,t);
+    var k=o.k,D=inD(o,t),L=inL(o,t),inv=(k==='af'||k==='vaf');
     if(k==='capp'){if(L){r.caja+=o.p;r.capital+=o.p}return}
-    if(k==='capt'){if(L){r.caja+=o.p;r.loan+=o.p}return}
+    if(k==='capt'){if(L){r.caja+=o.p;if(o.largo)r.loanL+=o.p;else r.loanC+=o.p}return}
     if(o.nat==='activo'){
       if(L)r.caja+=o.p;
-      if(D&&!L)r.ar+=o.p;
-      if(L&&!D)r.antc+=o.p;
-      if(D)r.df+=o.igs;
+      if(D&&!L){if(inv)r.arf+=o.p;else r.ar+=o.p}
+      if(L&&!D){if(inv)r.antcf+=o.p;else r.antc+=o.p}
+      if(D){if(inv)r.dff+=o.igs;else r.df+=o.igs}
       if(L)r.det+=o.ds;
     }else{
       if(L)r.caja-=o.p;
-      if(D&&!L)r.ap+=o.p;
-      if(L&&!D)r.antp+=o.p;
-      if(D)r.cf+=o.igs;
+      if(D&&!L){if(inv)r.apf+=o.p;else r.ap+=o.p}
+      if(L&&!D){if(inv)r.antpf+=o.p;else r.antp+=o.p}
+      if(D){if(inv)r.cff+=o.igs;else r.cf+=o.igs}
     }
   });
+  S.af.forEach(function(a){
+    var al=afAlta(a);if(!al||al>t)return;
+    var c=afCost(a);if(a.orig==='aporte')r.capital+=c-(+a.depi||0);
+    var bj=afBaja(a);if(bj&&bj<=t)return;
+    r.afc+=c;r.afd+=depC(a,t);
+  });
   Object.keys(r).forEach(function(k){r[k]=r2(r[k])});
-  r.libre=r2(r.caja-r.det);
-  r.activo=r2(r.caja+r.ar+r.antp+r.cf);
-  r.pasivo=r2(r.ap+r.antc+r.df+r.loan);
-  r.pat=r2(r.activo-r.pasivo);
-  r.resac=r2(r.pat-r.capital);
+  r.cobrar=r2(r.ar+r.arf);r.pagar=r2(r.ap+r.apf);r.antprov=r2(r.antp+r.antpf);r.antcli=r2(r.antc+r.antcf);
+  r.cfisc=r2(r.cf+r.cff);r.dfisc=r2(r.df+r.dff);r.afn=r2(r.afc-r.afd);r.libre=r2(r.caja-r.det);
+  r.acorr=r2(r.caja+r.cobrar+r.antprov+r.cfisc);r.anocorr=r.afn;r.activo=r2(r.acorr+r.anocorr);
+  r.pcorr=r2(r.pagar+r.antcli+r.dfisc+r.loanC);r.pnocorr=r.loanL;r.pasivo=r2(r.pcorr+r.pnocorr);
+  r.pat=r2(r.activo-r.pasivo);r.resac=r2(r.pat-r.capital);
   return r;
 }
 function eerr(f,t){
-  var r={ing:0,cos:0,gas:0,v:[],c:[],g:[]};
+  var r={ing:0,cos:0,gas:0,dep:0,gv:0,v:[],c:[],g:[]};
   S.ops.forEach(function(o){
     if(!o.dev||o.devd<f||o.devd>t)return;
     if(o.k==='ing'){r.ing+=o.bs;r.v.push(o)}
     else if(o.k==='cos'){r.cos+=o.bs;r.c.push(o)}
     else if(o.k==='gas'){r.gas+=o.bs;r.g.push(o)}
   });
+  var f0=dAdd(f,-1);
+  S.af.forEach(function(a){
+    r.dep+=depPer(a,t)-depPer(a,f0);
+    var bj=afBaja(a),al=afAlta(a);
+    if(al&&bj&&bj>=f&&bj<=t){var sl=afSale(a);r.gv+=(sl&&sl.dev?sl.bs:0)-(afCost(a)-depC(a,bj))}
+  });
   [r.v,r.c,r.g].forEach(function(a){a.sort(function(x,y){return x.devd<y.devd?-1:x.devd>y.devd?1:0})});
-  r.ing=r2(r.ing);r.cos=r2(r.cos);r.gas=r2(r.gas);
-  r.mb=r2(r.ing-r.cos);r.res=r2(r.mb-r.gas);
+  r.ing=r2(r.ing);r.cos=r2(r.cos);r.gas=r2(r.gas);r.dep=r2(r.dep);r.gv=r2(r.gv);
+  r.mb=r2(r.ing-r.cos);r.res=r2(r.mb-r.gas-r.dep+r.gv);
   return r;
 }
 function fev(f,t){
@@ -326,6 +375,12 @@ function fev(f,t){
   return ev;
 }
 function ftot(ev){var t={i:0,e:0,g:0};ev.forEach(function(x){t.i+=x.i;t.e+=x.e;if(x.o.k==='gas')t.g+=x.e});t.i=r2(t.i);t.e=r2(t.e);t.g=r2(t.g);return t}
+function fsplit(ev){
+  var s={op:{i:0,e:0},inv:{i:0,e:0},fin:{i:0,e:0}};
+  ev.forEach(function(x){var k=x.o.k,g=(k==='capp'||k==='capt')?'fin':(k==='af'||k==='vaf')?'inv':'op';s[g].i+=x.i;s[g].e+=x.e});
+  Object.keys(s).forEach(function(g){s[g].i=r2(s[g].i);s[g].e=r2(s[g].e)});
+  return s;
+}
 function wStart(d){var t=new Date(d+'T12:00:00'),w=(t.getDay()+6)%7;t.setDate(t.getDate()-w);return iso(t)}
 function weekEnd(d){return dAdd(wStart(d),6)}
 function margenes(ev){
@@ -340,15 +395,14 @@ function margenes(ev){
   return{dia:arr(D),sem:arr(W)};
 }
 function indirecto(f,t){
-  var a=esf(dAdd(f,-1)),b=esf(t),r=eerr(f,t);
+  var a=esf(dAdd(f,-1)),b=esf(t),r=eerr(f,t),sp=fsplit(fev(f,t));
   var d={ar:r2(b.ar-a.ar),antp:r2(b.antp-a.antp),cf:r2(b.cf-a.cf),ap:r2(b.ap-a.ap),antc:r2(b.antc-a.antc),df:r2(b.df-a.df)};
-  var ind=r2(r.res-d.ar-d.antp-d.cf+d.ap+d.antc+d.df),dir=0;
-  fev(f,t).forEach(function(x){if(isOp(x.o))dir+=x.i-x.e});
-  dir=r2(dir);
-  return{res:r.res,d:d,ind:ind,dir:dir,diff:r2(ind-dir)};
+  var wc=r2(-d.ar-d.antp-d.cf+d.ap+d.antc+d.df);
+  var ind=r2(r.res+r.dep-r.gv+wc),dir=r2(sp.op.i-sp.op.e),inv=r2(sp.inv.i-sp.inv.e),fin=r2(sp.fin.i-sp.fin.e);
+  return{res:r.res,dep:r.dep,gv:r.gv,d:d,wc:wc,ind:ind,dir:dir,diff:r2(ind-dir),inv:inv,fin:fin,ini:a.caja,fini:b.caja,chk:r2(b.caja-a.caja-(dir+inv+fin))};
 }
 function pending(nat){
-  return S.ops.filter(function(o){return o.nat===nat&&isOp(o)&&inD(o,S.to)&&!inL(o,S.to)}).sort(function(a,b){return a.d<b.d?-1:1});
+  return S.ops.filter(function(o){return o.nat===nat&&(isOp(o)||o.k==='af'||o.k==='vaf')&&inD(o,S.to)&&!inL(o,S.to)}).sort(function(a,b){return a.d<b.d?-1:1});
 }
 
 /* ===== Pantallas ===== */
@@ -377,8 +431,9 @@ function renderHome(){
   setNeg($('#kcaja'),e.libre);
   $('#kdet').textContent=e.det>0?'+ '+money(e.det)+' en tu cuenta de detracciones (solo sirve para impuestos)':'';
   $('#kpat').textContent=money(e.pat);
-  var ig=r2(e.cf-e.df);$('#kigv').textContent=ig>=0?money(ig)+' a favor':money(-ig)+' por pagar';
-  $('#kcob').textContent=money(e.ar);$('#kpag').textContent=money(e.ap);
+  var ig=r2(e.cfisc-e.dfisc);$('#kigv').textContent=ig>=0?money(ig)+' a favor':money(-ig)+' por pagar';
+  $('#kcob').textContent=money(e.cobrar);$('#kpag').textContent=money(e.pagar);
+  $('#kaf').textContent=money(e.afn);var cm=0;S.af.forEach(function(a){if(afNums(a,S.to).c>0)cm+=afCm(a)});$('#kcm').textContent=money(r2(cm));
   var tot=t.i+t.e,pi=tot?t.i/tot*100:0;
   $('#arc').setAttribute('stroke-dasharray',(pi*2.5133).toFixed(2)+' 251.33');
   $('#ti').textContent=money(t.i);$('#to').textContent=money(t.e);$('#ps').textContent=money(r2(t.i-t.g));
@@ -401,12 +456,17 @@ function pendBlock(nat){
   var L=pending(nat);
   return '<div class="card"><div class="sec"><span>'+(nat==='activo'?'Por cobrar':'Por pagar')+'</span><span class="sub">'+L.length+' documento'+(L.length===1?'':'s')+'</span></div>'+(L.map(function(o){return rowHTML(o)}).join('')||'<div class="empty">Nada pendiente.</div>')+'</div>';
 }
+function sect(h,lines,total,tl){var x='<div class="card blk"><h3>'+h[0]+'</h3><div class="note">'+h[1]+'</div>';lines.forEach(function(l){x+=ln(l[0],l[1])});return x+ln(tl,total,'t')+'</div>'}
 function renderEsf(){
   var e=esf(S.to);
   $('#v-esf').innerHTML='<div class="note" style="margin:0 2px 8px">Estado de situación financiera · foto de la empresa al <b>'+fdate(S.to)+'</b></div>'
-   +blk('ACTIVO','Lo que la empresa tiene o le deben',[['Efectivo (caja y bancos)',e.libre],['Cuenta de detracciones',e.det],['Derechos a cobrar',e.ar],['Anticipos entregados a proveedores',e.antp],['Crédito fiscal (IGV de tus compras)',e.cf]],e.activo,'TOTAL ACTIVO')
-   +blk('PASIVO','Lo que la empresa debe',[['Derechos a pagar',e.ap],['Anticipos recibidos de clientes',e.antc],['Débito fiscal (IGV de tus ventas)',e.df],['Préstamos de terceros',e.loan]],e.pasivo,'TOTAL PASIVO')
-   +blk('PATRIMONIO','Lo que de verdad es de los dueños',[['Capital propio',e.capital],['Resultados acumulados',e.resac]],e.pat,'TOTAL PATRIMONIO')
+   +sect(['ACTIVO CORRIENTE','Lo que se convierte en dinero en menos de un año'],[['Efectivo (caja y bancos)',e.libre],['Cuenta de detracciones',e.det],['Derechos a cobrar',e.cobrar],['Anticipos entregados a proveedores',e.antprov],['Crédito fiscal (IGV de tus compras)',e.cfisc]],e.acorr,'Total activo corriente')
+   +sect(['ACTIVO NO CORRIENTE','Lo que la empresa usa por años: máquinas y vehículos'],[['Activos fijos (costo)',e.afc],['(−) Depreciación acumulada',-e.afd]],e.anocorr,'Total activo no corriente')
+   +'<div class="card blk">'+ln('TOTAL ACTIVO',e.activo,'t')+'</div>'
+   +sect(['PASIVO CORRIENTE','Lo que debes pagar en menos de un año'],[['Derechos a pagar',e.pagar],['Anticipos recibidos de clientes',e.antcli],['Débito fiscal (IGV de tus ventas)',e.dfisc],['Préstamos a corto plazo',e.loanC]],e.pcorr,'Total pasivo corriente')
+   +sect(['PASIVO NO CORRIENTE','Lo que debes pagar en más de un año'],[['Préstamos a largo plazo',e.loanL]],e.pnocorr,'Total pasivo no corriente')
+   +'<div class="card blk">'+ln('TOTAL PASIVO',e.pasivo,'t')+'</div>'
+   +sect(['PATRIMONIO','Lo que de verdad es de los dueños'],[['Capital propio (incluye bienes aportados)',e.capital],['Resultados acumulados',e.resac]],e.pat,'TOTAL PATRIMONIO')
    +'<div class="chk">✓ Activo ('+money(e.activo)+') = Pasivo + Patrimonio ('+money(r2(e.pasivo+e.pat))+')</div>'
    +pendBlock('activo')+pendBlock('pasivo');
 }
@@ -416,7 +476,7 @@ function devRows(L,showSign){
 function renderEer(){
   var r=eerr(S.from,S.to);
   $('#v-eer').innerHTML='<div class="note" style="margin:0 2px 8px">Estado de resultados · lo que se <b>devengó</b> del '+dm(S.from)+' al '+dm(S.to)+' (montos sin IGV)</div>'
-   +'<div class="card blk"><h3>RESULTADO</h3>'+ln('Ventas devengadas',r.ing,'in')+ln('(−) Costo de ventas (compras)',r.cos,'out')+ln('Margen bruto',r.mb,'t')+ln('(−) Gastos y remuneraciones',r.gas,'out')+ln('Resultado del período',r.res,'t')+'</div>'
+   +'<div class="card blk"><h3>RESULTADO</h3>'+ln('Ventas devengadas',r.ing,'in')+ln('(−) Costo de ventas (compras)',r.cos,'out')+ln('Margen bruto',r.mb,'t')+ln('(−) Gastos y remuneraciones',r.gas,'out')+ln('(−) Depreciación de activos fijos',r.dep,'out')+(r.gv?ln(r.gv>=0?'(+) Ganancia por venta o baja de activos':'(−) Pérdida por venta o baja de activos',r.gv):'')+ln('Resultado del período',r.res,'t')+'</div>'
    +'<div class="card"><div class="sec"><span>Devengos de venta</span><span class="sub">'+r.v.length+'</span></div>'+devRows(r.v)+'</div>'
    +'<div class="card"><div class="sec"><span>Devengos de costo</span><span class="sub">'+r.c.length+'</span></div>'+devRows(r.c)+'</div>'
    +'<div class="card"><div class="sec"><span>Devengos de gasto</span><span class="sub">'+r.g.length+'</span></div>'+devRows(r.g)+'</div>';
@@ -425,20 +485,22 @@ function evRows(L,col){
   return L.map(function(x){var o=x.o;return '<div class="row" data-ed="'+o.id+'"><div class="d">'+dm(x.d)+'</div><div class="m"><b>'+esc(o.c)+'</b><span>'+esc([o.cp,o.fac,o.x].filter(Boolean).join(' · ')||'—')+'</span></div><div class="a '+col+'">'+money(col==='in'?x.i:x.e)+'</div></div>'}).join('')||'<div class="empty">Sin movimientos de dinero.</div>';
 }
 function renderFe(){
-  var ev=fev(S.from,S.to),t=ftot(ev),mg=margenes(ev),ind=indirecto(S.from,S.to),e0=esf(dAdd(S.from,-1)),e1=esf(S.to);
+  var ev=fev(S.from,S.to),sp=fsplit(ev),mg=margenes(ev),ind=indirecto(S.from,S.to);
   var ins=ev.filter(function(x){return x.i>0}),outs=ev.filter(function(x){return x.e>0});
+  var op=r2(sp.op.i-sp.op.e),inv=r2(sp.inv.i-sp.inv.e),fin=r2(sp.fin.i-sp.fin.e);
   var h='<div class="note" style="margin:0 2px 8px">Flujo de efectivo · lo que de verdad se <b>cobró y pagó</b> del '+dm(S.from)+' al '+dm(S.to)+'</div>'
-   +'<div class="card blk"><h3>EFECTIVO</h3>'+ln('Efectivo al inicio',e0.caja)+ln('Ingresos (cobros y aportes)',t.i,'in')+ln('Egresos (pagos)',t.e,'out')+ln('Efectivo al final',e1.caja,'t')+'</div>'
+   +'<div class="card blk"><h3>EFECTIVO</h3>'+ln('Efectivo al inicio',ind.ini)+ln('Actividades de operación',op,op>=0?'in':'out')+ln('Actividades de inversión (máquinas y vehículos)',inv,inv>=0?'in':'out')+ln('Actividades de financiamiento (aportes y préstamos)',fin,fin>=0?'in':'out')+ln('Efectivo al final',ind.fini,'t')+'</div>'
    +'<div class="card"><div class="sec"><span>Ingresos</span><span class="sub">'+ins.length+'</span></div>'+evRows(ins,'in')+'</div>'
    +'<div class="card"><div class="sec"><span>Egresos</span><span class="sub">'+outs.length+'</span></div>'+evRows(outs,'out')+'</div>';
   function mrows(a){return a.slice(-14).reverse().map(function(x){return '<div class="ln"><span>'+dm(x.k)+'</span><b class="'+(x.m>=0?'in':'out')+'">'+money(x.m)+'</b></div>'}).join('')||'<div class="empty">Sin datos.</div>'}
   h+='<div class="card"><div class="sec"><span>Margen diario</span><span class="sub">cobros − pagos</span></div>'+mrows(mg.dia)+'</div>'
    +'<div class="card"><div class="sec"><span>Margen semanal</span><span class="sub">semana al domingo</span></div>'+mrows(mg.sem)+'</div>'
    +'<div class="card blk"><h3>MÉTODO INDIRECTO</h3><div class="note">Resultados − Situación financiera = efectivo de la operación</div>'
-   +ln('Resultado del período',ind.res)+ln('(−) Más derechos a cobrar',-ind.d.ar)+ln('(−) Más anticipos a proveedores',-ind.d.antp)+ln('(−) Más crédito fiscal',-ind.d.cf)
+   +ln('Resultado del período',ind.res)+ln('(+) Depreciación (no es dinero que sale)',ind.dep)+(ind.gv?ln('(−) Ganancia / (+) pérdida por venta de activos',-ind.gv):'')
+   +ln('(−) Más derechos a cobrar',-ind.d.ar)+ln('(−) Más anticipos a proveedores',-ind.d.antp)+ln('(−) Más crédito fiscal',-ind.d.cf)
    +ln('(+) Más derechos a pagar',ind.d.ap)+ln('(+) Más anticipos de clientes',ind.d.antc)+ln('(+) Más débito fiscal',ind.d.df)
    +ln('Efectivo de la operación (indirecto)',ind.ind,'t')+ln('Efectivo de la operación (directo)',ind.dir)
-   +'<div class="chk">'+(ind.diff===0?'✓ Los dos métodos coinciden':'⚠ Diferencia de '+money(ind.diff))+'</div></div>';
+   +'<div class="chk">'+(ind.diff===0&&ind.chk===0?'✓ Los dos métodos coinciden y el efectivo cuadra':'⚠ Diferencia de '+money(ind.diff||ind.chk))+'</div></div>';
   $('#v-fe').innerHTML=h;
 }
 function renderFaro(){
@@ -451,26 +513,29 @@ function renderFaro(){
 }
 function showTab(t){
   TAB=t;
-  ['home','esf','eer','fe','faro'].forEach(function(k){$('#v-'+k).classList.toggle('hide',k!==t)});
+  ['home','af','faro','cont'].forEach(function(k){$('#v-'+k).classList.toggle('hide',k!==t)});
   document.querySelectorAll('#tabs button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t)});
   renderTab();
 }
+var CSUB='esf';
+function renderCont(){
+  var D={esf:'Situación: qué tiene la empresa, qué debe y cuánto vale.',eer:'Resultados: cuánto se ganó o se perdió con lo que se vendió y compró.',fe:'Flujo: por dónde entró y salió el dinero de verdad.'};
+  ['esf','eer','fe'].forEach(function(k){$('#v-'+k).classList.toggle('hide',k!==CSUB)});
+  document.querySelectorAll('#csub button').forEach(function(b){b.classList.toggle('on',b.dataset.v===CSUB)});
+  $('#cdesc').textContent=D[CSUB];
+  if(CSUB==='esf')renderEsf();else if(CSUB==='eer')renderEer();else renderFe();
+}
 function renderTab(){
-  if(TAB==='esf')renderEsf();else if(TAB==='eer')renderEer();else if(TAB==='fe')renderFe();else if(TAB==='faro')renderFaro();else renderHome();
+  if(false){}else if(TAB==='af')renderAf();else if(TAB==='faro')renderFaro();else if(TAB==='cont')renderCont();else renderHome();
 }
 function render(){
   $('#who').textContent=ME?ME+' · '+({admin:'administrador',editor:'editor',lector:'lector'}[ROL]||''):'';
   $('#f').value=S.from;$('#t').value=S.to;$('#dol').textContent='Dólar hoy: S/ '+S.tc;
   if(ROL==='lector'){renderLector();return}
   S.ops.forEach(prep);
-  m2mBadge();wBanner();renderTab();
+  m2mBadge();wBanner();renderTab();pushSnap();
 }
-async function renderLector(){
-  var r=await sb.rpc('resumen_v2',{desde:S.from,hasta:S.to});
-  if(r.error||!r.data||!r.data.length){toast('No se pudo cargar el resumen');return}
-  var x=r.data[0];
-  setNeg($('#kcaja'),+x.libre);$('#kpat').textContent=money(+x.patrimonio);$('#kcob').textContent=money(+x.por_cobrar);$('#kpag').textContent=money(+x.por_pagar);$('#kigv').textContent='—';$('#kdet').textContent='';
-}
+
 
 /* ===== Capas de navegación (botón atrás del celular) ===== */
 var LAY=[],SHEETOPEN=false,TABL=false,EXITING=false,lastBack=0;
@@ -519,26 +584,36 @@ function formBody(edit){
   h+='<span class="lb" id="ml">Monto total</span><input id="am" class="amt num" data-dec="2" inputmode="decimal" placeholder="0.00" aria-labelledby="ml">';
   h+='<div id="tcw" class="hide"><div class="sub" style="margin-top:8px">Tipo de cambio (S/ por cada $ 1)</div><input id="tc" class="num" data-dec="4" inputmode="decimal" value="'+S.tc+'"><div class="sub" id="eq"></div></div>';
   h+='<div class="nc"><label class="ck"><input type="checkbox" id="coni" checked> Incluye IGV (18%)</label><div id="igw" class="two" style="margin-top:8px"><div><div class="sub">Base (sin IGV)</div><input id="bas" readonly></div><div><div class="sub">IGV <small>(editable)</small></div><input id="igv" class="num" data-dec="2" inputmode="decimal"></div></div></div>';
-  h+='<div class="two"><div><span class="lb" id="cpl">Cliente</span><input id="cp" maxlength="60" placeholder="Nombre o razón social"></div><div class="nc"><span class="lb">N° de factura</span><input id="fac" maxlength="30" placeholder="E001-11"></div></div>';
-  h+='<div class="nc"><label class="ck"><input type="checkbox" id="det"> Afecta a detracción</label><div id="detw" class="hide"><div class="two" style="margin-top:8px"><div><div class="sub">% de detracción</div><input id="detp" class="num" data-dec="2" inputmode="decimal" placeholder="Ej: 12"></div><div><div class="sub">Monto de la detracción</div><input id="detm" readonly></div></div><div class="sub" style="margin-top:6px">Pregunta a tu contador el % según el servicio. Esa parte queda en la cuenta de detracciones y solo sirve para pagar impuestos.</div></div></div>';
+  h+='<span class="lb" id="cpl">Cliente</span><input id="cp" maxlength="60" placeholder="Nombre o razón social">';
   h+='<span class="lb">Confirma qué pasó</span>';
-  h+='<label class="ck big nc"><input type="checkbox" id="dev" checked><span><b id="devl">Devengado</b><small id="devs">Ya ocurrió la venta (se ve en Resultados)</small></span></label>';
+  h+='<label class="ck big nc" id="devbox"><input type="checkbox" id="dev" checked><span><b id="devl">Devengado</b><small id="devs">Ya ocurrió la venta (se ve en Resultados)</small></span></label>';
   h+='<label class="ck big"><input type="checkbox" id="liq"><span><b id="liql">Cobrado</b><small id="liqs">Ya entró el dinero (se ve en Flujo de efectivo)</small></span></label>';
   h+='<div class="tip ex" id="expl"></div>';
   h+='<div class="two"><div><span class="lb">Fecha del documento</span><input id="dt" type="date"></div><div id="ldw" class="hide"><span class="lb" id="ldl">Fecha de cobro</span><input id="ldt" type="date"></div></div>';
+  h+='<div id="lgw" class="hide"><span class="lb">¿En cuánto tiempo lo devuelves?</span><div class="seg"><button data-a="lg" data-v="c" class="on">Hasta 12 meses</button><button data-a="lg" data-v="l">Más de 12 meses</button></div><div class="sub" style="margin-top:6px">Corto plazo es un pasivo corriente. Largo plazo es un pasivo no corriente.</div></div>';
+  h+='<button class="mini" id="masb" data-a="mas" style="margin-top:16px;width:100%">＋ Más detalles (factura, detracción, plazo, foto…)</button>';
+  h+='<div id="mas" class="hide">';
+  h+='<div class="nc"><span class="lb">N° de factura</span><input id="fac" maxlength="30" placeholder="E001-11"></div>';
+  h+='<div class="nc"><label class="ck"><input type="checkbox" id="det"> Afecta a detracción</label><div id="detw" class="hide"><div class="two" style="margin-top:8px"><div><div class="sub">% de detracción</div><input id="detp" class="num" data-dec="2" inputmode="decimal" placeholder="Ej: 12"></div><div><div class="sub">Monto de la detracción</div><input id="detm" readonly></div></div><div class="sub" style="margin-top:6px">Pregunta a tu contador el % según el servicio. Esa parte queda en la cuenta de detracciones y solo sirve para pagar impuestos.</div></div></div>';
   h+='<div class="nc" id="plw"><span class="lb">Plazo de crédito <small>(días; 0 = contado)</small></span><input id="plz" class="num" data-dec="0" inputmode="numeric" placeholder="0"></div>';
   h+='<span class="lb">Nota <small>(opcional)</small></span><input id="dx" maxlength="60" placeholder="Ej: Alquiler excavadora a Juan">';
   h+='<span class="lb">Foto <small>(opcional)</small></span><label class="photo"><svg class="ic"><use href="#i-cam"/></svg><span id="pt">Comprobante</span><input id="pf" type="file" accept="image/*" class="hide"></label>';
   h+='<label class="ck nolec"><input type="checkbox" id="m2m"> Acuerdo verbal (M2M): sin contrato ni papel</label>';
+  h+='</div>';
   h+='<div id="se" class="err"></div><button class="save" data-a="ok">Guardar</button>';
   if(edit)h+='<button class="save dan" data-a="del">Eliminar este movimiento</button>';
   return h;
 }
-function openForm(nat,id){
+function toggleMas(force){
+  var m=$('#mas');if(!m)return;
+  var open=force!==undefined?force:m.classList.contains('hide');
+  m.classList.toggle('hide',!open);$('#masb').textContent=open?'－ Ocultar detalles':'＋ Más detalles (factura, detracción, plazo, foto…)';
+}
+function openForm(nat,id,pre){
   var o=id?S.ops.filter(function(x){return x.id==id})[0]:null;
   if(id&&!o)return;
   nat=o?o.nat:nat;
-  F={nat:nat,c:o?o.c:cons(nat)[0].n,cur:o?o.cur:'PEN',edit:o?o.id:null,img:o?(o.img||''):'',imgPath:o?o.imgPath:null,igvman:false,by:o?o.by:null,uid:o?o.uid:null,k:'ing',touched:!!o};
+  F={nat:nat,c:o?o.c:cons(nat)[0].n,cur:o?o.cur:'PEN',edit:o?o.id:null,img:o?(o.img||''):'',imgPath:o?o.imgPath:null,igvman:false,by:o?o.by:null,uid:o?o.uid:null,k:'ing',touched:!!o,afid:o?(o.afid||null):null,largo:o?!!o.largo:false};
   sheet('',formBody(!!o));
   if(o){
     $('#am').value=o.a;$('#dt').value=o.d;$('#ldt').value=o.liqd||o.d;$('#cp').value=o.cp||'';$('#fac').value=o.fac||'';
@@ -549,9 +624,12 @@ function openForm(nat,id){
     if(o.cur==='USD'){setCur('USD');$('#tc').value=o.tc}
     if(o.img)$('#pt').textContent='Foto lista ✓';
     F.ldtT=true;
+    if(o.fac||o.det||o.plazo||o.x||o.m2m||o.img)toggleMas(true);
   }else{
     $('#dt').value=today();$('#ldt').value=today();
+    if(pre){F.c=pre.c||F.c;F.afid=pre.afid||null}
     defaults();
+    if(pre){if(pre.am)$('#am').value=pre.am;if(pre.x)$('#dx').value=pre.x}
   }
   applyForm();
 }
@@ -560,7 +638,7 @@ function defaults(){
   $('#liq').checked=(k==='gas'||k==='capp'||k==='capt');
   $('#dev').checked=true;
   $('#coni').checked=!(k==='capp'||k==='capt'||nrm(F.c)==='remuneracion');
-  F.igvman=false;
+  F.igvman=false;F.largo=false;
 }
 function setCur(c){
   F.cur=c;
@@ -570,7 +648,7 @@ function setCur(c){
 function applyForm(){
   var act=F.nat==='activo',k=kindOf({c:F.c,nat:F.nat}),cap=(k==='capp'||k==='capt');
   F.k=k;
-  var L=allCons().slice().sort(function(a,b){return (a.nat===F.nat?0:1)-(b.nat===F.nat?0:1)});
+  var L=allCons().filter(function(c){return !c.hid||c.n===F.c}).sort(function(a,b){return (a.nat===F.nat?0:1)-(b.nat===F.nat?0:1)});
   $('#chips').innerHTML=L.map(function(c){return '<button class="chip'+(c.n===F.c?' on':'')+(c.nat!==F.nat?' alt':'')+'" data-a="chip" data-n="'+esc(c.n)+'">'+esc(c.n)+'</button>'}).join('')+'<button class="chip add" data-a="addc">+ Otro</button>';
   $('#nat').textContent=act?'ACTIVO = lo que la empresa tiene o le deben: ventas, cobros, aportes.':'PASIVO = lo que la empresa debe o ya pagó: compras, gastos, deudas.';
   var c=findCon(F.c);$('#hint').textContent=c?c.h:'';
@@ -583,6 +661,9 @@ function applyForm(){
   $('#liqs').textContent=cap?'Ya entró el dinero a la caja':(act?'Ya entró el dinero (se ve en Flujo de efectivo)':'Ya salió el dinero (se ve en Flujo de efectivo)');
   $('#ldl').textContent=cap?'Fecha en que entró':(act?'Fecha de cobro':'Fecha de pago');
   document.querySelectorAll('#sheet .nc').forEach(function(e){e.classList.toggle('hide',cap)});
+  $('#devbox').classList.toggle('hide',cap||k==='af'||k==='vaf');
+  $('#lgw').classList.toggle('hide',k!=='capt');
+  document.querySelectorAll('#lgw button').forEach(function(b){b.classList.toggle('on',(b.dataset.v==='l')===!!F.largo)});
   recalc();
 }
 function eq(){
@@ -594,6 +675,8 @@ function explain(){
   var act=F.nat==='activo',k=F.k,gas=(k==='gas');
   if(k==='capp')return F.liq?'Entra dinero tuyo a la caja y sube tu PATRIMONIO. No es una venta.':'Todavía no entró el dinero: no cambia nada.';
   if(k==='capt')return F.liq?'Entra a tu caja, pero es una DEUDA: sube tu pasivo, no tu patrimonio.':'Todavía no entró el dinero: no cambia nada.';
+  if(k==='af')return F.liq?'Compra de activo fijo ya pagada: el dinero sale, pero entra a tus ACTIVOS FIJOS. No es un gasto: se irá depreciando mes a mes.':'Compra de activo fijo aún no pagada: entra a tus ACTIVOS FIJOS y queda como DERECHO A PAGAR. No es un gasto.';
+  if(k==='vaf')return F.liq?'Venta de activo fijo ya cobrada: entra el dinero y la máquina sale de tus activos fijos. La diferencia con su valor actual es ganancia o pérdida.':'Venta de activo fijo aún no cobrada: la máquina sale de tus activos fijos y queda como DERECHO A COBRAR.';
   var w=act?'Venta':(gas?'Gasto':'Compra');
   if(F.dev&&F.liq)return w+(act?' ya cobrada':' ya pagada')+': suma a RESULTADOS y '+(act?'entra al':'sale del')+' FLUJO DE EFECTIVO.';
   if(F.dev){
@@ -613,7 +696,7 @@ function recalc(){
   $('#bas').value=tot?fmt(tot-ig):'';
   var det=!cap&&$('#det').checked;$('#detw').classList.toggle('hide',!det);
   var dp=parseFloat($('#detp').value)||0;F.det=det;F.dp=dp;F.detm=det?r2(tot*dp/100):0;$('#detm').value=(det&&tot)?fmt(F.detm):'';
-  F.liq=$('#liq').checked;F.dev=cap?false:$('#dev').checked;
+  F.liq=$('#liq').checked;F.dev=cap?false:($('#dev').checked||F.k==='af'||F.k==='vaf');
   $('#ldw').classList.toggle('hide',!F.liq);
   $('#plw').classList.toggle('hide',cap||F.liq||!F.dev);
   $('#expl').textContent=explain();
@@ -631,12 +714,15 @@ function saveForm(){
   if(F.ig>F.tot)return err('El IGV no puede ser mayor que el monto total.');
   if(!HASACC)return err('Falta correr supabase_contable.sql en Supabase (te lo pasé junto con esta versión).');
   var old=F.edit?S.ops.filter(function(x){return x.id===F.edit})[0]:null;
+  if(F.k==='af'&&!F.afid)return err('Registra la compra desde la zona Activos fijos.');
+  if(F.k==='vaf'){var as=F.afid?S.af.filter(function(x){return x.id===F.afid})[0]:null;if(!as)return err('Elige qué activo vendes desde la zona Activos fijos.');var al=afAlta(as);if(al&&d<al)return err('La venta no puede ser antes de que el activo entrara ('+fdate(al)+').')}
   var o={id:old?old.id:-Date.now(),nat:F.nat,c:F.c,d:d,cur:F.cur,a:r2(F.tot),tc:tc,x:$('#dx').value.trim(),cp:$('#cp').value.trim(),fac:$('#fac').value.trim(),
     dev:F.dev,devd:(old&&old.dev&&old.devd&&old.devd!==old.d)?old.devd:d,liq:F.liq,liqd:ldt,plazo:parseInt($('#plz').value)||0,coni:F.coni,ig:F.ig,
     det:F.det,detp:F.dp,detm:F.detm,m2m:$('#m2m').checked,img:F.img,imgPath:F.imgPath,
-    by:old?old.by:nmShow(ME),uid:old?old.uid:UID};
+    by:old?old.by:nmShow(ME),uid:old?old.uid:UID,largo:F.k==='capt'&&!!F.largo,afid:F.afid||null};
   prep(o);
   if(old)S.ops[S.ops.indexOf(old)]=o;else S.ops.push(o);
+  if(F.k==='vaf'){var a2=S.af.filter(function(x){return x.id===F.afid})[0];if(a2)a2.est='vendido'}
   if(F.cur==='USD')S.tc=tc;
   if(d>S.to)S.to=d;if(d<S.from)S.from=d;
   save();closeSheet();render();
@@ -673,17 +759,20 @@ function applyConfirm(kind,id){
 
 /* ===== Base de datos compartida (Supabase) ===== */
 var SB_URL='https://xzkjvpbiwmcjwshsdgdu.supabase.co',SB_KEY='sb_publishable_UIIhYJ1iNKKFcM_PjY_pDA_69TT_FyQ';
-var sb=null,syncing=false,again=false,REM={ops:{},cat:{},tc:null};
+var sb=null,syncing=false,again=false,REM={ops:{},cat:{},af:{},tc:null},HASAF=false,HASSNAP=false;
 function nmShow(n){n=n||'';return n.indexOf('@')>=0?n.split('@')[0]:n}
 function opRow(o){
   var r={fecha:o.d,categoria:o.c,tipo:o.nat==='activo'?'in':'out',moneda:o.cur==='USD'?'USD':'PEN',monto:+o.a,tipo_cambio:+(o.tc||1),nota:o.x||null,foto_path:o.imgPath||null,m2m:!!o.m2m,contraparte:o.cp||null};
   if(HASACC){r.naturaleza=o.nat;r.devengado=!!o.dev;r.fecha_devengo=o.devd||o.d;r.liquidado=!!o.liq;r.fecha_liquidacion=o.liq?(o.liqd||o.d):null;r.plazo_dias=+o.plazo||0;r.factura=o.fac||null;r.con_igv=!!o.coni;r.igv=+o.ig||0;r.afecto_detraccion=!!o.det;r.pct_detraccion=o.det?+o.detp:null;r.detraccion=o.det?+o.detm:0}
+  if(HASAF){r.largo_plazo=!!o.largo;r.activo_id=o.afid>0?o.afid:null}
   return r;
 }
 function rowOp(r){
   return prep({id:r.id,d:r.fecha,c:r.categoria,nat:r.naturaleza||(r.tipo==='in'?'activo':'pasivo'),cur:r.moneda,a:+r.monto,tc:+r.tipo_cambio,x:r.nota||'',img:null,imgPath:r.foto_path||null,uid:r.creado_por,by:nmShow(NAMES[r.creado_por]),m2m:!!r.m2m,cp:r.contraparte||'',
-    dev:r.devengado==null?true:!!r.devengado,devd:r.fecha_devengo||r.fecha,liq:r.liquidado==null?true:!!r.liquidado,liqd:r.fecha_liquidacion||r.fecha,plazo:+r.plazo_dias||0,fac:r.factura||'',coni:!!r.con_igv,ig:+r.igv||0,det:!!r.afecto_detraccion,detp:r.pct_detraccion==null?0:+r.pct_detraccion,detm:+r.detraccion||0,_r:1});
+    dev:r.devengado==null?true:!!r.devengado,devd:r.fecha_devengo||r.fecha,liq:r.liquidado==null?true:!!r.liquidado,liqd:r.fecha_liquidacion||r.fecha,plazo:+r.plazo_dias||0,fac:r.factura||'',coni:!!r.con_igv,ig:+r.igv||0,det:!!r.afecto_detraccion,detp:r.pct_detraccion==null?0:+r.pct_detraccion,detm:+r.detraccion||0,largo:!!r.largo_plazo,afid:r.activo_id||null,_r:1});
 }
+function afRow(a){return{nombre:a.nom,tipo:a.tipo||null,marca:a.marca||null,modelo:a.modelo||null,anio:a.anio||null,placa:a.placa||null,fecha_alta:a.alta||null,origen:a.orig,costo:+a.cost||0,valor_residual:+a.res||0,vida_util_anios:+a.vida||0,dep_acum_inicial:+a.depi||0,dep_trib_pct:+a.tribp||0,vida_tecnica_horas:+a.vth||0,horas_usadas:+a.hus||0,horas_mes:+a.hmes||0,costo_dep_adicional:+a.cadic||0,costo_seguro:+a.cseg||0,costo_mantenimiento:+a.cman||0,costo_materiales:+a.cmat||0,estado:a.est||'activo',fecha_baja:a.baja||null}}
+function rowAf(r){return{id:r.id,nom:r.nombre,tipo:r.tipo||'',marca:r.marca||'',modelo:r.modelo||'',anio:r.anio,placa:r.placa||'',alta:r.fecha_alta,orig:r.origen,cost:+r.costo,res:+r.valor_residual,vida:+r.vida_util_anios,depi:+r.dep_acum_inicial,tribp:+r.dep_trib_pct,vth:+r.vida_tecnica_horas,hus:+r.horas_usadas,hmes:+r.horas_mes,cadic:+r.costo_dep_adicional,cseg:+r.costo_seguro,cman:+r.costo_mantenimiento,cmat:+r.costo_materiales,est:r.estado||'activo',baja:r.fecha_baja,uid:r.creado_por,by:nmShow(NAMES[r.creado_por]),_r:1}}
 async function fetchAll(t){var out=[],i=0;for(;;){var r=await sb.from(t).select('*').order('id').range(i,i+999);if(r.error)throw r.error;out=out.concat(r.data);if(r.data.length<1000)break;i+=1000}return out}
 async function loadAll(){
   var u=await sb.auth.getUser();UID=u.data.user.id;MAIL=u.data.user.email||'';
@@ -693,13 +782,15 @@ async function loadAll(){
   READY=false;
   if(ROL==='lector'){S.ops=[];READY=true;return}
   var pj=await sb.from('movimientos').select('naturaleza').limit(1);HASACC=!pj.error;
-  var R=await Promise.all([fetchAll('movimientos'),sb.from('categorias').select('nombre,tipo'),sb.from('config').select('valor').eq('clave','tipo_cambio').maybeSingle(),sb.from('perfiles').select('id,nombre')]);
+  var pk=await sb.from('movimientos').select('activo_id').limit(1),pa=await sb.from('activos_fijos').select('id').limit(1),ps=await sb.from('resumen_snap').select('id').limit(1);
+  HASAF=!pk.error&&!pa.error;HASSNAP=!ps.error;
+  var R=await Promise.all([fetchAll('movimientos'),sb.from('categorias').select('nombre,tipo'),sb.from('config').select('valor').eq('clave','tipo_cambio').maybeSingle(),sb.from('perfiles').select('id,nombre'),HASAF?fetchAll('activos_fijos'):Promise.resolve([])]);
   NAMES={};(R[3].data||[]).forEach(function(q){NAMES[q.id]=q.nombre});if(ME)NAMES[UID]=ME;
-  S.ops=R[0].map(rowOp);
+  S.ops=R[0].map(rowOp);S.af=R[4].map(rowAf);
   S.custom=(R[1].data||[]).map(function(c){var nat=c.tipo==='in'?'activo':'pasivo';return{n:c.nombre,nat:nat,h:'Tu opción nueva: queda en '+(nat==='activo'?'ACTIVO':'PASIVO')+'.'}});
   if(R[2].data)S.tc=parseFloat(R[2].data.valor)||S.tc;
-  REM={ops:{},cat:{},tc:S.tc};
-  S.ops.forEach(function(o){REM.ops[o.id]=opRow(o)});S.custom.forEach(function(c){REM.cat[c.n]=1});
+  REM={ops:{},cat:{},af:{},tc:S.tc};
+  S.ops.forEach(function(o){REM.ops[o.id]=opRow(o)});S.af.forEach(function(a){REM.af[a.id]=afRow(a)});S.custom.forEach(function(c){REM.cat[c.n]=1});
   var paths=S.ops.filter(function(o){return o.imgPath}).map(function(o){return o.imgPath});
   if(paths.length){var sg=await sb.storage.from('comprobantes').createSignedUrls(paths,3600);(sg.data||[]).forEach(function(x){S.ops.forEach(function(o){if(o.imgPath===x.path&&x.signedUrl)o.img=x.signedUrl})})}
   if(ROL==='admin'){var wr=await sb.from('trabajadores').select('*').order('fecha_ingreso',{ascending:false});S.workers=wr.error?[]:wr.data;WOK=!wr.error}
@@ -709,12 +800,26 @@ function syncQ(){
   if(!READY||ROL==='lector'||!sb)return;
   if(syncing){again=true;return}
   syncing=true;
-  sync().catch(function(){toast('No se pudo guardar. Revisa tu internet.')}).then(function(){syncing=false;render();if(again){again=false;syncQ()}});
+  sync().catch(function(){toast('No se pudo guardar. Revisa tu internet.')}).then(function(){syncing=false;render();pushSnap();if(again){again=false;syncQ()}});
 }
 function save(){syncQ();return true}
 async function sync(){
   var err=0,reload=false,live={},i,o,r,old,id;
   for(i=0;i<S.custom.length;i++){var c=S.custom[i];if(!REM.cat[c.n]){r=await sb.from('categorias').insert({nombre:c.n,tipo:c.nat==='activo'?'in':'out'});if(r.error&&r.error.code!=='23505')err++;else REM.cat[c.n]=1}}
+  if(HASAF){
+    var liveA={};S.af.forEach(function(x){liveA[x.id]=1});
+    for(i=0;i<S.af.length;i++){
+      var ac=S.af[i],arow=afRow(ac);
+      if(ac.id<0){
+        r=await sb.from('activos_fijos').insert(arow).select().single();
+        if(r.error){err++;continue}
+        old=ac.id;ac.id=r.data.id;ac._r=1;S.ops.forEach(function(q){if(q.afid===old)q.afid=ac.id});REM.af[ac.id]=afRow(rowAf(r.data));
+      }else if(JSON.stringify(arow)!==JSON.stringify(REM.af[ac.id])){
+        r=await sb.from('activos_fijos').update(arow).eq('id',ac.id).select();
+        if(r.error||!r.data||!r.data.length){err++;reload=true}else REM.af[ac.id]=arow;
+      }
+    }
+  }
   S.ops.forEach(function(x){live[x.id]=1});
   for(id in REM.ops){if(!live[id]){r=await sb.from('movimientos').delete().eq('id',id);if(r.error)err++;else delete REM.ops[id]}}
   for(i=0;i<S.ops.length;i++){
@@ -734,6 +839,7 @@ async function sync(){
       if(r.error||!r.data||!r.data.length){err++;reload=true}else REM.ops[o.id]=row;
     }
   }
+  if(HASAF){for(id in REM.af){if(!S.af.some(function(x){return String(x.id)===String(id)})){r=await sb.from('activos_fijos').delete().eq('id',id);if(r.error)err++;else delete REM.af[id]}}}
   if(ROL==='admin'&&+S.tc!==+REM.tc){r=await sb.from('config').upsert({clave:'tipo_cambio',valor:String(S.tc)},{onConflict:'clave'});if(!r.error)REM.tc=S.tc}
   if(err)toast('Algunos cambios no se guardaron. Revisa tu conexión o tus permisos.');
   if(reload)await loadAll();
@@ -761,7 +867,7 @@ function openGuide(){
    +'<p>☑ <b>Devengado</b>: la venta o compra <b>ya ocurrió</b>. Cuenta en <b>Resultados</b> (sin IGV).</p>'
    +'<p>☑ <b>Cobrado / Pagado</b>: el dinero <b>ya entró o salió</b>. Cuenta en <b>Flujo de efectivo</b>.</p>'
    +'<div class="card" style="margin:10px 0"><p><b>Ejemplo:</b> vendes a 30 días. Marcas solo Devengado: queda como <b>derecho a cobrar</b>. A los 30 días tocas "Por cobrar" y confirmas el cobro: recién ahí entra a tu flujo.</p></div>'
-   +'<p><b>Las pestañas:</b></p><p>• <b>Situación</b>: qué tienes, qué debes y cuánto vale la empresa (Patrimonio = Activo − Pasivo).</p><p>• <b>Resultados</b>: cuánto ganaste con lo que se vendió y compró.</p><p>• <b>Flujo</b>: el dinero que de verdad entró y salió, con el método indirecto.</p><p>• <b>Faro</b>: todas las compras y ventas con su factura.</p>'
+   +'<p><b>Las pestañas:</b></p><p>• <b>Inicio</b>: tu dinero disponible, lo que te deben y lo que debes.</p><p>• <b>Activos fijos</b>: tus máquinas y vehículos y cuánto se van depreciando.</p><p>• <b>Faro</b>: todas las compras y ventas con su factura.</p><p>• <b>Info contable</b>: para quien quiere más detalle: <b>Situación</b> (qué tienes, qué debes y cuánto vale la empresa), <b>Resultados</b> (cuánto ganaste) y <b>Flujo</b> (por dónde entró y salió el dinero). No hace falta para el día a día.</p>'
    +'<p><b>IGV:</b> el de tus compras es crédito fiscal y el de tus ventas es débito fiscal. <b>Detracción:</b> parte de la venta que queda en la cuenta del Banco de la Nación y solo sirve para pagar impuestos.</p>'
    +'<p>El <b>Patrimonio sin gastos</b> es lo que tienes después de descontar los gastos del día a día.</p></div>');
 }
@@ -848,7 +954,7 @@ document.addEventListener('click',function(e){
   else if(a==='cur'){setCur(b.dataset.v);recalc()}
   else if(a==='chip'){
     var c=findCon(b.dataset.n);if(!c)return;
-    F.c=c.n;if(c.nat!==F.nat){F.nat=c.nat;toast('Lo pasé a '+(c.nat==='activo'?'ACTIVO':'PASIVO')+': ahí va '+c.n)}
+    F.c=c.n;if(!c.hid)F.afid=null;if(c.nat!==F.nat){F.nat=c.nat;toast('Lo pasé a '+(c.nat==='activo'?'ACTIVO':'PASIVO')+': ahí va '+c.n)}
     if(!F.touched)defaults();applyForm();
   }
   else if(a==='addc'){$('#addw').innerHTML='<div class="two" style="margin-top:8px"><input id="ncn" maxlength="30" placeholder="Nombre de la nueva opción"><button class="chip on" data-a="addok" style="flex:none">Agregar</button></div>';$('#ncn').focus()}
@@ -856,6 +962,22 @@ document.addEventListener('click',function(e){
     var v=($('#ncn').value||'').trim();if(!v)return;
     S.custom.push({n:v,nat:F.nat,h:'Tu opción nueva: queda en '+(F.nat==='activo'?'ACTIVO':'PASIVO')+'.'});F.c=v;$('#addw').innerHTML='';save();if(!F.touched)defaults();applyForm();
   }
+  else if(a==='more'){var m=$('#more'),h=m.classList.toggle('hide');b.textContent=h?'Ver más detalles ▾':'Ocultar detalles ▴'}
+  else if(a==='csub'){CSUB=b.dataset.v;renderCont()}
+  else if(a==='mas')toggleMas();
+  else if(a==='afnew')afForm();
+  else if(a==='afopen')openAf(id);
+  else if(a==='aft')afTabSwitch(b.dataset.v);
+  else if(a==='afedit')afForm(id);
+  else if(a==='afsave')afSave();
+  else if(a==='afdel')afDel(b);
+  else if(a==='afsell')afSell(id);
+  else if(a==='afbaja')afBajaForm(id);
+  else if(a==='afbajaok')afBajaOk(id);
+  else if(a==='afreact')afReact(id);
+  else if(a==='aor')afOrig(b.dataset.v);
+  else if(a==='atipo'){F2.tipo=b.dataset.v;drawAfTipo()}
+  else if(a==='lg'){F.largo=b.dataset.v==='l';applyForm()}
   else if(a==='ok')saveForm();
   else if(a==='del')delOp(b);
   else if(a==='pok'){
@@ -982,12 +1104,19 @@ function docs(){
   D.push({id:'resultados',name:'Estado de resultados',title:'ESTADO DE RESULTADOS',
     cols:[C('FECHA',12,'txt'),C('DESCRIPCIÓN',34,'txt',1),C('CLIENTE / PROVEEDOR',26,'txt',1),C('BASE',15,'num'),C('IGV',13,'num'),C('TOTAL',15,'num')],
     rows:dv(r.v,'DEVENGOS DE VENTA').concat(dv(r.c,'DEVENGOS DE COSTO'),dv(r.g,'DEVENGOS DE GASTO'),[{sec:'RESULTADO DEL PERÍODO'},
-      {tot:['','VENTAS','',r.ing,'','']},{tot:['','(-) COSTO DE VENTAS','',r.cos,'','']},{tot:['','MARGEN BRUTO','',r.mb,'','']},{tot:['','(-) GASTOS','',r.gas,'','']},{tot:['','RESULTADO','',r.res,'','']}])});
+      {tot:['','VENTAS','',r.ing,'','']},{tot:['','(-) COSTO DE VENTAS','',r.cos,'','']},{tot:['','MARGEN BRUTO','',r.mb,'','']},{tot:['','(-) GASTOS','',r.gas,'','']},{tot:['','(-) DEPRECIACIÓN','',r.dep,'','']},{tot:['','(+/-) VENTA O BAJA DE ACTIVOS','',r.gv,'','']},{tot:['','RESULTADO','',r.res,'','']}])});
   D.push({id:'situacion',name:'Situación financiera',title:'ESTADO DE SITUACIÓN FINANCIERA AL '+fdate(t),
     cols:[C('CONCEPTO',44,'txt',1),C('MONTO',16,'num'),C('QUÉ SIGNIFICA',56,'txt',1)],
-    rows:[{sec:'ACTIVO'},['Efectivo (caja y bancos)',e.libre,'Dinero libre'],['Cuenta de detracciones',e.det,'Retenido en el Banco de la Nación: solo para impuestos'],['Derechos a cobrar',e.ar,'Ventas devengadas aún sin cobrar'],['Anticipos entregados a proveedores',e.antp,'Pagaste antes de recibir'],['Crédito fiscal (IGV de compras)',e.cf,'IGV que puedes descontar'],{tot:['TOTAL ACTIVO',e.activo,'']},
-      {sec:'PASIVO'},['Derechos a pagar',e.ap,'Compras devengadas aún sin pagar'],['Anticipos recibidos de clientes',e.antc,'Te pagaron antes de entregar'],['Débito fiscal (IGV de ventas)',e.df,'IGV que debes declarar'],['Préstamos de terceros',e.loan,'Dinero prestado'],{tot:['TOTAL PASIVO',e.pasivo,'']},
-      {sec:'PATRIMONIO'},['Capital propio',e.capital,'Dinero que pusieron los dueños'],['Resultados acumulados',e.resac,'Lo ganado o perdido hasta hoy'],{tot:['TOTAL PATRIMONIO',e.pat,'']},{tot:['ACTIVO = PASIVO + PATRIMONIO',e.activo,'']}]});
+    rows:[{sec:'ACTIVO CORRIENTE'},['Efectivo (caja y bancos)',e.libre,'Dinero libre'],['Cuenta de detracciones',e.det,'Retenido en el Banco de la Nación: solo para impuestos'],['Derechos a cobrar',e.cobrar,'Ventas devengadas aún sin cobrar'],['Anticipos entregados a proveedores',e.antprov,'Pagaste antes de recibir'],['Crédito fiscal (IGV de compras)',e.cfisc,'IGV que puedes descontar'],{tot:['TOTAL ACTIVO CORRIENTE',e.acorr,'']},
+      {sec:'ACTIVO NO CORRIENTE'},['Activos fijos (costo)',e.afc,'Máquinas y vehículos'],['(-) Depreciación acumulada',-e.afd,'Lo que ya se depreció'],{tot:['TOTAL ACTIVO NO CORRIENTE',e.anocorr,'']},{tot:['TOTAL ACTIVO',e.activo,'']},
+      {sec:'PASIVO CORRIENTE'},['Derechos a pagar',e.pagar,'Compras devengadas aún sin pagar'],['Anticipos recibidos de clientes',e.antcli,'Te pagaron antes de entregar'],['Débito fiscal (IGV de ventas)',e.dfisc,'IGV que debes declarar'],['Préstamos a corto plazo',e.loanC,'Se devuelven en menos de un año'],{tot:['TOTAL PASIVO CORRIENTE',e.pcorr,'']},
+      {sec:'PASIVO NO CORRIENTE'},['Préstamos a largo plazo',e.loanL,'Se devuelven en más de un año'],{tot:['TOTAL PASIVO NO CORRIENTE',e.pnocorr,'']},{tot:['TOTAL PASIVO',e.pasivo,'']},
+      {sec:'PATRIMONIO'},['Capital propio',e.capital,'Dinero y bienes que pusieron los dueños'],['Resultados acumulados',e.resac,'Lo ganado o perdido hasta hoy'],{tot:['TOTAL PATRIMONIO',e.pat,'']},{tot:['PASIVO + PATRIMONIO',r2(e.pasivo+e.pat),'Debe ser igual al total activo']}]});
+  var AFL=S.af.map(function(a){var n=afNums(a,t),al=afAlta(a);return [a.nom,a.tipo||'',al?fdate(al):'',n.c,n.d,n.n,r2(afMonthly(a)),depTrib(a,t),depTec(a),afCm(a)]});
+  function sc(i){var q=0;AFL.forEach(function(r){q+=r[i]});return r2(q)}
+  D.push({id:'activos',name:'Activos fijos',title:'ACTIVOS FIJOS Y DEPRECIACIÓN AL '+fdate(t),
+    cols:[C('ACTIVO',28,'txt',1),C('TIPO',12,'txt'),C('DESDE',11,'txt'),C('COSTO',13,'num'),C('DEP. CONTABLE ACUM.',14,'num'),C('VALOR ACTUAL',13,'num'),C('CUOTA MENSUAL',13,'num'),C('DEP. TRIBUTARIA',13,'num'),C('DEP. TÉCNICA',13,'num'),C('COSTO MENSUAL TOTAL',14,'num')],
+    rows:AFL,total:['TOTAL','','',sc(3),sc(4),sc(5),sc(6),sc(7),sc(8),sc(9)]});
   function reg(kinds,lab,who){
     var L=S.ops.filter(function(o){return o.d>=f&&o.d<=t&&kinds.indexOf(o.k)>=0}).sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:0});
     return {rows:L.map(function(o){return [fdate(o.d),o.fac||'',o.cp||'',o.bs,o.igs,o.p,o.det?'SI':'NO',o.ds,estadoTxt(o)]}),
@@ -1001,8 +1130,9 @@ function docs(){
   D.push({id:'igv',name:'IGV',title:'IGV DEL PERÍODO',cols:[C('CONCEPTO',40,'txt',1),C('MONTO',16,'num'),C('NOTA',50,'txt',1)],
     rows:[['Crédito fiscal (IGV de compras y gastos)',cf,'Lo que puedes descontar'],['Débito fiscal (IGV de ventas)',df,'Lo que debes declarar'],{tot:[net>=0?'IGV A FAVOR':'IGV POR PAGAR A SUNAT',Math.abs(net),'Crédito fiscal − débito fiscal = '+pn(net)]}]});
   D.push({id:'indirecto',name:'Método indirecto',title:'MÉTODO INDIRECTO (RESULTADOS − SITUACIÓN FINANCIERA)',cols:[C('CONCEPTO',48,'txt',1),C('MONTO',16,'num'),C('NOTA',40,'txt',1)],
-    rows:[['Resultado del período',ind.res,'Del Estado de resultados'],['(-) Aumento de derechos a cobrar',-ind.d.ar,''],['(-) Aumento de anticipos a proveedores',-ind.d.antp,''],['(-) Aumento de crédito fiscal',-ind.d.cf,''],['(+) Aumento de derechos a pagar',ind.d.ap,''],['(+) Aumento de anticipos de clientes',ind.d.antc,''],['(+) Aumento de débito fiscal',ind.d.df,''],
-      {tot:['EFECTIVO DE LA OPERACIÓN (INDIRECTO)',ind.ind,'']},['Efectivo de la operación (directo)',ind.dir,'Cobros − pagos del Flujo de efectivo'],{tot:['DIFERENCIA',ind.diff,ind.diff===0?'Los dos métodos coinciden':'Revisa los datos']}]});
+    rows:[['Resultado del período',ind.res,'Del Estado de resultados'],['(+) Depreciación',ind.dep,'No es dinero que sale'],['(-) Ganancia / (+) pérdida por venta de activos',-ind.gv,'Va en inversión, no en operación'],['(-) Aumento de derechos a cobrar',-ind.d.ar,''],['(-) Aumento de anticipos a proveedores',-ind.d.antp,''],['(-) Aumento de crédito fiscal',-ind.d.cf,''],['(+) Aumento de derechos a pagar',ind.d.ap,''],['(+) Aumento de anticipos de clientes',ind.d.antc,''],['(+) Aumento de débito fiscal',ind.d.df,''],
+      {tot:['EFECTIVO DE LA OPERACIÓN (INDIRECTO)',ind.ind,'']},['Efectivo de la operación (directo)',ind.dir,'Cobros − pagos del Flujo de efectivo'],{tot:['DIFERENCIA',ind.diff,ind.diff===0?'Los dos métodos coinciden':'Revisa los datos']},
+      {sec:'RESUMEN DEL EFECTIVO'},['Efectivo al inicio',ind.ini,''],['Actividades de operación',ind.dir,''],['Actividades de inversión',ind.inv,'Compra y venta de máquinas y vehículos'],['Actividades de financiamiento',ind.fin,'Aportes y préstamos'],{tot:['EFECTIVO AL FINAL',ind.fini,ind.chk===0?'Cuadra con tu caja':'No cuadra: revisa']}]});
   return D;
 }
 /* ===== Vista previa ===== */
@@ -1155,6 +1285,167 @@ async function resumenPdf(){
     doc.text('Velas semanales (suma y resta de cada semana)',14,122);doc.addImage(P[3],'PNG',14,125,182,91);
     dl('Resumen_Chumita_'+S.from+'_a_'+S.to+'.pdf',doc.output('arraybuffer'));
   }catch(e){toast('No se pudo preparar el resumen')}
+}
+
+/* ===== Zona de ACTIVOS FIJOS (no corrientes) ===== */
+var AFV=null,AFT_TAB='res';
+function afEstado(a){
+  var bj=afBaja(a),al=afAlta(a);
+  if(bj&&bj<=S.to)return a.est==='baja'&&!afSale(a)?'De baja':'Vendido';
+  if(!al)return a.orig==='compra'?'Falta registrar la compra':'Sin fecha';
+  if(al>S.to)return 'Aún no entra (desde '+dm(al)+')';
+  return 'En uso';
+}
+function afNums(a,t){var c=afCost(a),al=afAlta(a),bj=afBaja(a),out=(bj&&bj<=t)||!al||al>t;return{c:out?0:c,d:out?0:depC(a,t),n:out?0:r2(c-depC(a,t))}}
+function afCardHTML(a){
+  var n=afNums(a,S.to),st=afEstado(a),sub=[a.marca,a.modelo,a.anio,a.placa].filter(Boolean).join(' · ');
+  return '<div class="card" data-a="afopen" data-id="'+a.id+'" style="cursor:pointer"><div class="sec"><span>'+esc(a.nom)+'</span><i class="bd a">'+esc(a.tipo||'Activo')+'</i></div>'+(sub?'<div class="sub" style="margin-bottom:6px">'+esc(sub)+'</div>':'')
+   +ln('Costo',n.c)+ln('Depreciación acumulada',-n.d)+ln('Valor actual',n.n,'t')
+   +'<div class="bds"><i class="bd '+(st==='En uso'?'ok':'w')+'">'+esc(st)+'</i><i class="bd m">Cuota mensual '+money(afMonthly(a))+'</i></div></div>';
+}
+function renderAf(){
+  var tc=0,td=0,tn=0,tm=0,tcm=0;
+  S.af.forEach(function(a){var n=afNums(a,S.to);tc+=n.c;td+=n.d;tn+=n.n;if(n.c>0){tm+=afMonthly(a);tcm+=afCm(a)}});
+  var h='<div class="note" style="margin:0 2px 8px"><b>Activos fijos</b> (no corrientes) · lo que la empresa usa por años: máquinas y vehículos</div>'
+   +'<div class="card blk"><h3>RESUMEN AL '+fdate(S.to)+'</h3>'+ln('Costo de los activos',r2(tc))+ln('(−) Depreciación acumulada',-r2(td))+ln('Valor actual',r2(tn),'t')+ln('Cuota mensual de depreciación',r2(tm))+ln('Costo mensual de tenerlos y operarlos',r2(tcm))+'</div>'
+   +(HASAF?'':'<div class="tip ex">Falta correr supabase_activos.sql en Supabase para poder guardar activos fijos.</div>')
+   +'<button class="save" data-a="afnew" style="margin:0 0 12px">+ Agregar activo fijo</button>';
+  h+=S.af.map(afCardHTML).join('')||'<div class="empty">Aún no registras máquinas ni vehículos.<br>Toca “Agregar activo fijo”.</div>';
+  $('#v-af').innerHTML=h;
+}
+/* --- ficha del activo --- */
+function afTabHTML(a,k){
+  var c=afCost(a),res=+a.res||0,vida=+a.vida||0,dep=afDepable(a),mes=afMonthly(a),dc=depC(a,S.to);
+  if(k==='con')return '<div class="note">Depreciación contable (financiera): la que baja el valor del activo y sale como gasto en Resultados.</div>'
+    +ln('Costo',c)+ln('Vida útil',0).replace(/S\/ [\d.,]+/,vida+' años')+ln('Valor residual',res)+ln('Resultado (lo que se va a depreciar)',dep,'t')
+    +ln('÷ '+vida+' años = depreciación anual',vida>0?r2(dep/vida):0)+ln('Mensual (÷ 12) · su neto',r2(mes),'t')
+    +ln('Depreciación acumulada al '+dm(S.to),dc)+ln('Valor actual',r2(c-dc),'t');
+  if(k==='tri'){var dt=depTrib(a,S.to),an=r2(c*(+a.tribp||0)/100);return '<div class="note">Depreciación tributaria: la que acepta SUNAT. Es informativa: sirve para comparar con la contable.</div>'
+    +ln('% anual que usa tu contador',0).replace(/S\/ [\d.,]+/,(+a.tribp||0)+' %')+ln('Depreciación anual',an)+ln('Mensual',r2(an/12))+ln('Acumulada al '+dm(S.to),dt,'t')+ln('Diferencia contra la contable',r2(dt-dc))
+    +((+a.tribp||0)?'':'<div class="tip">Aún no pusiste el %. Pídeselo a tu contador y complétalo en “Editar datos”.</div>')}
+  if(k==='tec'){var vth=+a.vth||0,hus=+a.hus||0,dtc=depTec(a);return '<div class="note">Depreciación técnica: la que mide el ingeniero según las horas de uso de la máquina.</div>'
+    +ln('Vida técnica',0).replace(/S\/ [\d.,]+/,vth+' h')+ln('Horas usadas (horómetro)',0).replace(/S\/ [\d.,]+/,hus+' h')+ln('Valor por hora de uso',vth>0?r2(dep/vth):0)
+    +ln('Depreciación técnica acumulada',dtc,'t')+ln('Diferencia contra la contable',r2(dtc-dc))
+    +(vth?'':'<div class="tip">Aún no pusiste la vida técnica en horas. Complétala en “Editar datos”.</div>')}
+  if(k==='cos'){var tot=afCm(a),hm=+a.hmes||0;return '<div class="note">Lo que cuesta tener y operar esta máquina cada mes.</div>'
+    +ln('Mensual (depreciación contable)',r2(mes))+ln('Depreciación adicional',+a.cadic||0)+ln('Seguro',+a.cseg||0)+ln('Mantenimiento',+a.cman||0)+ln('Materiales',+a.cmat||0)+ln('Total mensual',tot,'t')
+    +(hm>0?ln('Costo por hora de uso ('+hm+' h al mes)',r2(tot/hm)):'<div class="tip">Si anotas las horas de uso al mes, calculo cuánto cuesta cada hora de máquina.</div>')}
+  var n=afNums(a,S.to);
+  return ln('Costo',n.c)+ln('Depreciación acumulada',-n.d)+ln('Valor actual',n.n,'t')+ln('Cuota mensual (contable)',r2(mes))+ln('Costo mensual total',afCm(a))+'<div class="bds"><i class="bd ok">'+esc(afEstado(a))+'</i>'+(afAlta(a)?'<i class="bd">Desde '+fdate(afAlta(a))+'</i>':'')+'</div>';
+}
+function openAf(id,k){
+  var a=S.af.filter(function(x){return x.id==id})[0];if(!a)return;
+  AFV=a.id;AFT_TAB=k||AFT_TAB;
+  var T=[['res','Resumen'],['con','Contable'],['tri','Tributaria'],['tec','Técnica'],['cos','Costo mensual']];
+  var sub=[a.tipo,a.marca,a.modelo,a.anio,a.placa].filter(Boolean).join(' · ');
+  var bj=afBaja(a),vivo=!(bj&&bj<=S.to);
+  sheet(esc(a.nom),(sub?'<div class="sub" style="margin-bottom:8px">'+esc(sub)+'</div>':'')
+   +'<div class="chips" style="margin-bottom:10px">'+T.map(function(x){return '<button class="chip'+(x[0]===AFT_TAB?' on':'')+'" data-a="aft" data-v="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'
+   +'<div id="aftc">'+afTabHTML(a,AFT_TAB)+'</div>'
+   +'<button class="save alt" data-a="afedit" data-id="'+a.id+'">Editar datos</button>'
+   +(vivo&&afAlta(a)?'<button class="save" data-a="afsell" data-id="'+a.id+'">Vender este activo</button><button class="save alt" data-a="afbaja" data-id="'+a.id+'">Dar de baja (sin venta)</button>':'')
+   +((a.est==='baja'&&!afSale(a))?'<button class="save alt" data-a="afreact" data-id="'+a.id+'">Reactivar</button>':''));
+}
+function afTabSwitch(k){
+  var a=S.af.filter(function(x){return x.id==AFV})[0];if(!a)return;AFT_TAB=k;
+  document.querySelectorAll('#sheet .chips button').forEach(function(b){b.classList.toggle('on',b.dataset.v===k)});
+  $('#aftc').innerHTML=afTabHTML(a,k);
+}
+/* --- formulario del activo --- */
+function afForm(id){
+  var a=id?S.af.filter(function(x){return x.id==id})[0]:null;
+  F2={id:a?a.id:null,orig:a?a.orig:'compra',tipo:a?a.tipo:'Maquinaria'};
+  function inp(i,l,dec,ph){return '<div><div class="sub">'+l+'</div><input id="'+i+'" class="num" data-dec="'+dec+'" inputmode="decimal" placeholder="'+(ph||'')+'"></div>'}
+  var h='<span class="lb">Nombre</span><input id="an" maxlength="60" placeholder="Ej: Excavadora CAT 320">'
+   +'<span class="lb">Tipo</span><div class="chips" id="atp"></div>'
+   +'<div class="two"><div><span class="lb">Marca</span><input id="a1" maxlength="30"></div><div><span class="lb">Modelo</span><input id="a2" maxlength="30"></div></div>'
+   +'<div class="two"><div><span class="lb">Año</span><input id="aa" class="num" data-dec="0" inputmode="numeric" maxlength="4"></div><div><span class="lb">Placa o serie</span><input id="ap" maxlength="30"></div></div>'
+   +(a?'':'<span class="lb">¿Cómo entra a la empresa?</span><div class="seg" id="aor"><button data-a="aor" data-v="compra" class="on">Lo compré</button><button data-a="aor" data-v="aporte">Ya era de la empresa</button></div>')
+   +'<div id="a-compra">'+(a&&a.orig==='aporte'?'':(a?'<div class="tip">El costo sale de la compra que ya registraste. Si lo quieres cambiar, corrige esa compra.</div>':'<span class="lb">Precio de compra total <small>(con IGV)</small></span>'+'<input id="apc" class="num" data-dec="2" inputmode="decimal" placeholder="0.00"><div class="sub">En el siguiente paso registras la compra: a quién, la fecha y si ya la pagaste. Eso hace que salga el dinero y entre el activo.</div>'))+'</div>'
+   +'<div id="a-aporte" class="hide"><div class="two"><div><span class="lb">Costo <small>(sin IGV)</small></span><input id="acs" class="num" data-dec="2" inputmode="decimal" placeholder="0.00"></div><div><span class="lb">Registrado desde</span><input id="aal" type="date"></div></div><span class="lb">Depreciación ya acumulada <small>(lo que ya se depreció antes, opcional)</small></span><input id="adi" class="num" data-dec="2" inputmode="decimal" placeholder="0.00"></div>'
+   +'<span class="lb">Depreciación contable</span><div class="two">'+inp('avi','Vida útil (años)',2,'Ej: 5')+inp('are','Valor residual (S/)',2,'Ej: 20000')+'</div>'
+   +'<span class="lb">Depreciación tributaria</span>'+inp('atr','% anual que usa tu contador',2,'Pregúntaselo a tu contador')
+   +'<span class="lb">Depreciación técnica <small>(ingeniero)</small></span><div class="two">'+inp('avt','Vida técnica (horas)',0,'Ej: 12000')+inp('ahu','Horas usadas hoy',0,'Horómetro')+'</div>'+inp('ahm','Horas de uso al mes (promedio)',0,'Ej: 160')
+   +'<span class="lb">Costo mensual de tener la máquina</span><div class="two">'+inp('acd','Depreciación adicional',2,'Ej: 400')+inp('acs2','Seguro',2,'Ej: 200')+'</div><div class="two" style="margin-top:8px">'+inp('acm','Mantenimiento',2,'Ej: 2000')+inp('acx','Materiales',2,'Ej: 1000')+'</div>'
+   +'<div id="se" class="err"></div><button class="save" data-a="afsave">'+(a?'Guardar cambios':'Continuar')+'</button>'+(a?'<button class="save dan" data-a="afdel">Eliminar este activo</button>':'');
+  sheet(a?'Editar activo fijo':'Nuevo activo fijo',h);
+  drawAfTipo();
+  if(a){
+    $('#an').value=a.nom;$('#a1').value=a.marca||'';$('#a2').value=a.modelo||'';$('#aa').value=a.anio||'';$('#ap').value=a.placa||'';
+    $('#acs').value=a.cost||'';$('#aal').value=a.alta||'';$('#adi').value=a.depi||'';
+    $('#avi').value=a.vida||'';$('#are').value=a.res||'';$('#atr').value=a.tribp||'';$('#avt').value=a.vth||'';$('#ahu').value=a.hus||'';$('#ahm').value=a.hmes||'';
+    $('#acd').value=a.cadic||'';$('#acs2').value=a.cseg||'';$('#acm').value=a.cman||'';$('#acx').value=a.cmat||'';
+    afOrig(a.orig);
+  }else{$('#aal').value=today();afOrig('compra')}
+}
+var F2=null;
+function drawAfTipo(){$('#atp').innerHTML=AFT.map(function(t){return '<button class="chip'+(t===F2.tipo?' on':'')+'" data-a="atipo" data-v="'+t+'">'+t+'</button>'}).join('')}
+function afOrig(o){
+  F2.orig=o;
+  document.querySelectorAll('#aor button').forEach(function(b){b.classList.toggle('on',b.dataset.v===o)});
+  $('#a-compra').classList.toggle('hide',o!=='compra');$('#a-aporte').classList.toggle('hide',o!=='aporte');
+}
+function afRead(a){
+  var n=function(i){return parseFloat($('#'+i).value)||0};
+  a.nom=$('#an').value.trim();a.tipo=F2.tipo;a.marca=$('#a1').value.trim();a.modelo=$('#a2').value.trim();a.anio=parseInt($('#aa').value)||null;a.placa=$('#ap').value.trim();
+  a.vida=n('avi');a.res=n('are');a.tribp=n('atr');a.vth=n('avt');a.hus=n('ahu');a.hmes=n('ahm');a.cadic=n('acd');a.cseg=n('acs2');a.cman=n('acm');a.cmat=n('acx');
+  if(a.orig==='aporte'){a.cost=n('acs');a.alta=$('#aal').value||today();a.depi=n('adi')}
+  return a;
+}
+function afSave(){
+  var err=function(m){$('#se').textContent=m};
+  var old=F2.id?S.af.filter(function(x){return x.id===F2.id})[0]:null;
+  if($('#an').value.trim().length<2)return err('Escribe el nombre del activo.');
+  if(!(parseFloat($('#avi').value)>0))return err('Escribe la vida útil en años (para la depreciación contable).');
+  if(!HASAF)return err('Falta correr supabase_activos.sql en Supabase.');
+  var a=old||{id:-Date.now(),orig:F2.orig,est:'activo',baja:null,by:nmShow(ME),uid:UID};
+  if(F2.orig==='aporte'&&!(parseFloat($('#acs').value)>0))return err('Escribe el costo del activo.');
+  if(F2.orig==='compra'&&!old&&!(parseFloat($('#apc').value)>0))return err('Escribe el precio de compra.');
+  afRead(a);
+  if(!old)S.af.push(a);
+  save();
+  if(!old&&a.orig==='compra'){
+    var total=parseFloat($('#apc').value);
+    openForm('pasivo',null,{c:'Compra de activo fijo',afid:a.id,am:total,x:a.nom,cp:''});
+    return;
+  }
+  closeSheet();render();toast(old?'Activo actualizado':'Activo registrado');
+}
+function afDel(btn){
+  if(!btn.dataset.sure){btn.dataset.sure='1';btn.textContent='Toca otra vez: también borra sus compras y ventas';return}
+  var id=F2.id;S.ops=S.ops.filter(function(o){return o.afid!==id});S.af=S.af.filter(function(a){return a.id!==id});save();closeSheet();render();toast('Activo eliminado');
+}
+function afSell(id){
+  var a=S.af.filter(function(x){return x.id==id})[0];if(!a)return;
+  openForm('activo',null,{c:'Venta de activo fijo',afid:a.id,x:'Venta de '+a.nom});
+}
+function afBajaForm(id){
+  var a=S.af.filter(function(x){return x.id==id})[0];if(!a)return;
+  sheet('Dar de baja','<div class="tip ex"><b>'+esc(a.nom)+'</b><br>Su valor actual ('+money(afNums(a,today()).n)+') se registra como pérdida en Resultados. No entra dinero.</div><span class="lb">Fecha de la baja</span><input id="cd" type="date" value="'+today()+'"><div id="se" class="err"></div><button class="save" data-a="afbajaok" data-id="'+id+'">Confirmar baja</button>');
+}
+function afBajaOk(id){
+  var a=S.af.filter(function(x){return x.id==id})[0],d=$('#cd').value||today();if(!a)return;
+  var al=afAlta(a);if(al&&d<al){$('#se').textContent='La baja no puede ser antes de que entrara ('+fdate(al)+').';return}
+  a.est='baja';a.baja=d;save();closeSheet();render();toast('Activo dado de baja');
+}
+function afReact(id){var a=S.af.filter(function(x){return x.id==id})[0];if(!a)return;a.est='activo';a.baja=null;save();closeSheet();render();toast('Activo reactivado')}
+
+/* ===== Resumen para lectores (foto que dejan los editores) ===== */
+var lastSnap=0;
+async function pushSnap(){
+  if(!sb||!READY||(ROL!=='admin'&&ROL!=='editor')||!HASSNAP||Date.now()-lastSnap<30000)return;
+  lastSnap=Date.now();
+  var t=today(),f=t.slice(0,4)+'-01-01',e=esf(t),r=eerr(f,t);
+  await sb.from('resumen_snap').upsert({id:1,actualizado:new Date().toISOString(),actualizado_por:UID,hasta:t,libre:e.libre,por_cobrar:e.cobrar,por_pagar:e.pagar,patrimonio:e.pat,activos_fijos:e.afn,ventas:r.ing,costos:r2(r.cos+r.gas),resultado:r.res},{onConflict:'id'});
+}
+async function renderLector(){
+  var r=await sb.from('resumen_snap').select('*').eq('id',1).maybeSingle();
+  if(r.error||!r.data){$('#kdet').textContent='Aún no hay un resumen. Se publica cuando un editor abre la app.';return}
+  var x=r.data;$('#more').classList.remove('hide');
+  setNeg($('#kcaja'),+x.libre);$('#kpat').textContent=money(+x.patrimonio);$('#kcob').textContent=money(+x.por_cobrar);$('#kpag').textContent=money(+x.por_pagar);
+  $('#kigv').textContent='—';$('#kaf').textContent=money(+x.activos_fijos);$('#kcm').textContent='—';
+  var d=x.actualizado?new Date(x.actualizado):null;
+  $('#kdet').textContent=d?'Actualizado el '+iso(d).slice(8)+'/'+iso(d).slice(5,7)+' a las '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'):'';
 }
 
 /* ===== Entrada, sesión y bloqueo por inactividad ===== */
